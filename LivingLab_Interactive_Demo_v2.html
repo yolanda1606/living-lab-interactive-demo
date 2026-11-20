@@ -59,6 +59,7 @@ h1 { margin: 5px 0; font-size: 38px; letter-spacing: -1px; color: var(--navy); }
   display: grid; 
   grid-template-columns: 1fr 4.2% 1fr; 
   align-items: stretch; 
+  z-index: 1;
   filter: drop-shadow(5px 7px 6px #0002); }
   /* Window arrangement: tinted glass | column | blinds */
 
@@ -76,18 +77,21 @@ h1 { margin: 5px 0; font-size: 38px; letter-spacing: -1px; color: var(--navy); }
     grid-column: 3;
     grid-row: 1;
 }
-.blinds-bank { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); border: 5px solid #344c5d; background: #344c5d; gap: 4px; min-width: 0; }
-.structural-column { background: linear-gradient(90deg, #d2d3d0, #f5f2ec 42%, #dbdcd7); border-left: 1px solid #bfc7c9; border-right: 1px solid #bcc5c8; }
+.blinds-bank { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); border: 5px solid #344c5d; background: transparent; gap: 0; min-width: 0; z-index: 1; }
+.blind-window + .blind-window { border-left: 4px solid #344c5d; }
+.structural-column { z-index: 1; background: linear-gradient(90deg, #d2d3d0, #f5f2ec 42%, #dbdcd7); border-left: 1px solid #bfc7c9; border-right: 1px solid #bcc5c8; }
 .electrochromic-bank {
     display: grid;
     grid-template-columns: repeat(4, minmax(0, 1fr));
     border: 5px solid #344c5d;
-    gap: 3px;
+    gap: 0;
     min-width: 0;
-    background: #344c5d;
+    background: transparent;
+    z-index: 1;
 }
+.ec-window + .ec-window { border-left: 3px solid #344c5d; }
 .blind-window, .ec-window { position: relative; min-width: 0; overflow: hidden; }
-.blind-window { background: linear-gradient(180deg, #91c9e6 0%, #b7dfed 65%, #8daa9e 66%, #6e9781 100%); }
+.outdoor-scene{position:absolute;inset:0;z-index:0;overflow:hidden;background:var(--sky);transition:background .9s ease}.outdoor-landscape{position:absolute;inset:0;z-index:3;background:var(--landscape)}.sun,.moon{position:absolute;z-index:1;transition:opacity .9s,left .9s,top .9s}.sun{left:var(--sun-x);top:var(--sun-y);font-size:clamp(28px,5vw,58px);color:#ffe78d;filter:drop-shadow(0 0 15px #fff6a0);opacity:var(--sun-opacity)}.moon{left:var(--moon-x);top:var(--moon-y);font-size:clamp(22px,4vw,42px);color:#eef2ff;opacity:var(--moon-opacity)}.stars{position:absolute;inset:0;z-index:1;opacity:var(--stars-opacity);background-image:radial-gradient(circle at 12% 19%,#fff 0 1px,transparent 1.5px),radial-gradient(circle at 52% 26%,#dce8ff 0 1px,transparent 1.5px),radial-gradient(circle at 88% 31%,#fff 0 1px,transparent 1.5px)}.cloud{position:absolute;z-index:2;width:30%;height:18%;border-radius:999px;background:var(--cloud-color);animation:cloud-drift 42s linear infinite alternate}.cloud::before,.cloud::after{content:'';position:absolute;border-radius:50%;background:inherit}.cloud::before{width:42%;height:150%;left:22%;bottom:0}.cloud::after{width:35%;height:115%;right:18%;bottom:0}.cloud-one{left:-9%;top:19%}.cloud-two{left:34%;top:8%;width:24%;animation-delay:-17s}.cloud-three{right:-6%;top:27%;width:26%;animation-delay:-29s}.shooting-star{position:absolute;z-index:1;top:20%;left:66%;width:34px;height:2px;opacity:0;background:linear-gradient(90deg,transparent,#fff);transform:rotate(-28deg);animation:shooting-star 13s ease-in infinite}.blind-window{background:transparent}
 .blind-window::before, .ec-window::before { content: ''; position: absolute; inset: 0; background: linear-gradient(148deg, transparent 42%, #ffffff30 43% 44%, transparent 46%); pointer-events: none; z-index: 4; }
 @property --slat-obstruction { syntax: '<number>'; inherits: true; initial-value: 0; }
 /* Horizontal slats remain a separate, translucent layer over the outdoor view. */
@@ -98,7 +102,7 @@ h1 { margin: 5px 0; font-size: 38px; letter-spacing: -1px; color: var(--navy); }
   grid-template-rows: repeat(3, minmax(0, 1fr)); 
   gap: 0; 
   border: 0;
-  background: linear-gradient(180deg, #91c9e6 0%, #b7dfed 65%, #8daa9e 66%, #6e9781 100%); }
+  background: transparent; }
 .ec-segment { 
   position: relative; 
   min-height: 0; 
@@ -110,12 +114,12 @@ h1 { margin: 5px 0; font-size: 38px; letter-spacing: -1px; color: var(--navy); }
 }
 .ec-segment::after { content: ''; position: absolute; inset: 0; background: #16334e; opacity: var(--tint-opacity, .035); transition: opacity .8s ease; }
 .ec-segment::after { pointer-events: none; }
-.sun { position: absolute; z-index: 1; top: 11%; left: 16%; font-size: clamp(32px, 6vw, 65px); color: #ffe78d; filter: drop-shadow(0 0 15px #fff6a0); transition: opacity .8s, transform .8s; }
 .bulb { position: absolute; left: 57%; top: 10%; height: 25%; width: 34%; background: radial-gradient(ellipse at 50% 10%, #ffdc7b99, #ffdc7b00 75%); opacity: .5; transition: opacity .8s; }
 .lamp { position: absolute; z-index: 5; left: 65%; top: 14%; height: 12px; width: 19%; background: #687d88; border-radius: 0 0 7px 7px; border-bottom: 5px solid #f3d084; transition: border-color .8s, filter .8s, opacity .8s; }
 .light-effect { position: absolute; z-index: 2; pointer-events: none; opacity: 0; transition: opacity .8s, background .8s; }
 .direct-light { left: 56%; top: 17%; width: 37%; height: 56%; background: radial-gradient(ellipse at 55% 0%, var(--lamp-glow), transparent 70%); clip-path: polygon(26% 0, 74% 0, 100% 100%, 0 100%); }
 .indirect-light { left: 55%; top: 0; width: 39%; height: 28%; background: radial-gradient(ellipse at 55% 100%, var(--lamp-glow), transparent 72%); }
+@keyframes cloud-drift{from{transform:translateX(-4%)}to{transform:translateX(11%)}}@keyframes shooting-star{0%,76%,100%{opacity:0;transform:translate(0,0) rotate(-28deg)}80%{opacity:var(--shooting-opacity)}88%{opacity:0;transform:translate(-150px,80px) rotate(-28deg)}}
 .desk { position: absolute; left: 8%; width: 86%; height: 10%; bottom: 7%; background: #b49a81; transform: skewX(-19deg); box-shadow: 1px 12px 0 #806954; }
 .chair { position: absolute; left: 67%; bottom: 12%; height: 13%; width: 13%; background: #36546b; border-radius: 8px 8px 2px 2px; transform: skewX(-7deg); }
 /* Understated annotations identify the facade systems without looking clickable. */
@@ -233,17 +237,6 @@ h1 { margin: 5px 0; font-size: 38px; letter-spacing: -1px; color: var(--navy); }
 .footer { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-top: 16px; color: #627784; font-size: 13px; }
 .disclaimer { padding: 9px 12px; background: #f9f4e7; border-radius: 6px; border: 1px solid #e4dabb; }
 
-/* 4. Automatic response to the three existing scenarios */
-body[data-scene='sunny'] .bulb { opacity: .12; }
-body[data-scene='sunny'] .sun { opacity: 1; }
-body[data-scene='cloudy'] .bulb { opacity: .58; }
-body[data-scene='cloudy'] .sun { opacity: .14; transform: translateY(9px); }
-body[data-scene='evening'] .bulb { opacity: 1; }
-body[data-scene='evening'] .sun { opacity: 0; }
-body[data-scene='evening'] .blind-window,
-body[data-scene='evening'] .ec-window { background: linear-gradient(180deg, #51617c, #526e71); }
-body[data-scene='evening'] .lamp { border-color: #ffcb61; filter: drop-shadow(0 0 11px #f5b63f); }
-
 /* 5. Responsive layout and accessibility */
 .language-switch select:focus-visible, .choice:focus-visible,
 .tint-option:focus-visible, .auto-choice:focus-visible, .slat-option:focus-visible, .angle-option:focus-visible { outline: 3px solid #3c8db8; outline-offset: 3px; }
@@ -275,7 +268,7 @@ body[data-scene='evening'] .lamp { border-color: #ffcb61; filter: drop-shadow(0 
 
 
 @media (prefers-reduced-motion: reduce) {
-  .ec-segment::after, .blind, .blind::after, .sun, .bulb, .lamp, .light-effect, .choice { transition: none !important; }
+  .ec-segment::after, .blind, .blind::after, .outdoor-scene, .sun, .moon, .stars, .cloud, .shooting-star, .bulb, .lamp, .light-effect, .choice { transition: none !important; animation: none !important; }
 }
 
   </style>
@@ -313,8 +306,9 @@ body[data-scene='evening'] .lamp { border-color: #ffcb61; filter: drop-shadow(0 
           <div class="ceiling"></div>
           <!-- Physical facade: 2 blinds | column | 4 electrochromic panes -->
           <div class="facade" aria-label="Six windows: two with blinds and four electrochromic">
+            <div class="outdoor-scene" aria-hidden="true"><div class="outdoor-landscape"></div><div class="stars"></div><div class="sun">☀</div><div class="moon">☾</div><div class="cloud cloud-one"></div><div class="cloud cloud-two"></div><div class="cloud cloud-three"></div><div class="shooting-star"></div></div>
             <div class="blinds-bank">
-              <div class="blind-window"><div class="sun" aria-hidden="true">☀</div><div class="blind"></div></div>
+              <div class="blind-window"><div class="blind"></div></div>
               <div class="blind-window"><div class="blind"></div></div>
             </div>
             <div class="structural-column" aria-hidden="true"></div>
@@ -367,18 +361,9 @@ body[data-scene='evening'] .lamp { border-color: #ffcb61; filter: drop-shadow(0 
         <h2 data-i18n="scenarioQuestion">Was passiert draußen?</h2>
         <p data-i18n-html="scenarioIntro">Wähle ein Szenario. Beobachte, wie sich <strong>Glas, Jalousien und Beleuchtung</strong> verändern.</p>
 
-        <div class="scenario-choices"><button type="button" class="choice active" data-target="sunny">
-          <span class="emoji">☀️</span>
-          <span><strong data-i18n="sceneSunny">Starke Sonne</strong><small data-i18n="sceneSunnyDesc">Blendung vermeiden</small></span>
-        </button>
-        <button type="button" class="choice" data-target="cloudy">
-          <span class="emoji">☁️</span>
-          <span><strong data-i18n="sceneCloudy">Bewölkt</strong><small data-i18n="sceneCloudyDesc">Mehr Tageslicht nutzen</small></span>
-        </button>
-        <button type="button" class="choice" data-target="evening">
-          <span class="emoji">🌙</span>
-          <span><strong data-i18n="sceneEvening">Abend</strong><small data-i18n="sceneEveningDesc">Raumbeleuchtung anpassen</small></span>
-        </button></div>
+        <div class="scenario-choices">
+          <button type="button" class="choice active" data-target="sunrise"><span class="emoji">🌅</span><span><strong class="scenario-name">Sonnenaufgang</strong></span></button><button type="button" class="choice" data-target="morning"><span class="emoji">🌤️</span><span><strong class="scenario-name">Vormittag</strong></span></button><button type="button" class="choice" data-target="strongSun"><span class="emoji">☀️</span><span><strong class="scenario-name">Starke Sonne</strong></span></button><button type="button" class="choice" data-target="cloudy"><span class="emoji">☁️</span><span><strong class="scenario-name">Bewölkt</strong></span></button><button type="button" class="choice" data-target="sunset"><span class="emoji">🌇</span><span><strong class="scenario-name">Sonnenuntergang</strong></span></button><button type="button" class="choice" data-target="night"><span class="emoji">🌙</span><span><strong class="scenario-name">Nacht</strong></span></button>
+        </div>
 
         <!-- One mode governs both electrochromic glass and blinds. -->
         <section class="mode-box" aria-labelledby="modeTitle">
@@ -493,10 +478,14 @@ body[data-scene='evening'] .lamp { border-color: #ffcb61; filter: drop-shadow(0 
   // Coverage describes HOW MANY rows are tinted, not tint strength.
   // This restores the original automatic 1/3, 2/3, 3/3 coverage behavior.
   // The upper row is filled first, consistently across all four windows.
+  // Centralized, reusable presets: outdoor environment and automatic devices are deliberately separate.
   const scenarios = {
-    sunny:   { coverage: 3, blindPosition: 55, slatAngle: 45, lampBrightness: 12, lampTemperature: 'neutral', lampDirection: 'indirect', light: 'reduced',  goal: 'glare' },
-    cloudy:  { coverage: 1, blindPosition: 8,  slatAngle: 0,  lampBrightness: 58, lampTemperature: 'neutral', lampDirection: 'direct', light: 'asNeeded', goal: 'daylight' },
-    evening: { coverage: 2, blindPosition: 82, slatAngle: 80, lampBrightness: 100, lampTemperature: 'warm', lampDirection: 'indirect', light: 'on', goal: 'comfort' }
+    sunrise:{labels:{de:'Sonnenaufgang',en:'Sunrise'},environment:{sky:'linear-gradient(180deg,#f6a47d,#f3b9b2 40%,#b9d8ea)',land:'linear-gradient(180deg,transparent 63%,#7b9077 64%,#4f735f)',sun:[8,38,1],moon:[0,0,0],clouds:[.32,.2,.16],cloud:'rgba(255,238,235,.72)',stars:0,shooting:0},devices:{tints:['high','medium','low'],blindPosition:0,slatAngle:0,lampBrightness:30,lampTemperature:'warm',lampDirection:'indirect',goal:'comfort'}},
+    morning:{labels:{de:'Vormittag',en:'Morning'},environment:{sky:'linear-gradient(180deg,#87c7eb,#b9e0ef 68%,#a0b889)',land:'linear-gradient(180deg,transparent 63%,#8ca57c 64%,#5f865d)',sun:[44,16,1],moon:[0,0,0],clouds:[.16,.11,.08],cloud:'rgba(255,255,255,.82)',stars:0,shooting:0},devices:{tints:['low','low','low'],blindPosition:0,slatAngle:0,lampBrightness:0,lampTemperature:'neutral',lampDirection:'direct',goal:'daylight'}},
+    strongSun:{labels:{de:'Starke Sonne',en:'Strong sun'},environment:{sky:'linear-gradient(180deg,#59b8eb,#9edaf1 68%,#9fba84)',land:'linear-gradient(180deg,transparent 63%,#8ba875 64%,#527a55)',sun:[78,9,1],moon:[0,0,0],clouds:[.08,.05,.04],cloud:'rgba(255,255,255,.75)',stars:0,shooting:0},devices:{tints:['high','high','high'],blindPosition:55,slatAngle:80,lampBrightness:10,lampTemperature:'neutral',lampDirection:'indirect',goal:'glare'}},
+    cloudy:{labels:{de:'Bewölkt',en:'Cloudy'},environment:{sky:'linear-gradient(180deg,#92aabd,#b7c7d0 68%,#91a486)',land:'linear-gradient(180deg,transparent 63%,#748b72 64%,#4f6c57)',sun:[50,24,.16],moon:[0,0,0],clouds:[.78,.68,.58],cloud:'rgba(221,230,235,.88)',stars:0,shooting:0},devices:{tints:['low','low','low'],blindPosition:0,slatAngle:0,lampBrightness:45,lampTemperature:'neutral',lampDirection:'direct',goal:'daylight'}},
+    sunset:{labels:{de:'Sonnenuntergang',en:'Sunset'},environment:{sky:'linear-gradient(180deg,#7a78b6,#d185a6 38%,#f1a477)',land:'linear-gradient(180deg,transparent 63%,#596c67 64%,#364e51)',sun:[85,44,1],moon:[0,0,0],clouds:[.3,.24,.2],cloud:'rgba(239,174,164,.7)',stars:0,shooting:0},devices:{tints:['medium','low','low'],blindPosition:25,slatAngle:30,lampBrightness:55,lampTemperature:'warm',lampDirection:'indirect',goal:'comfort'}},
+    night:{labels:{de:'Nacht',en:'Night'},environment:{sky:'linear-gradient(180deg,#102849,#1c4166 67%,#2e5062)',land:'linear-gradient(180deg,transparent 63%,#324755 64%,#182f39)',sun:[0,0,0],moon:[28,16,1],clouds:[.12,.08,.1],cloud:'rgba(117,145,174,.35)',stars:1,shooting:.65},devices:{tints:['low','low','low'],blindPosition:100,slatAngle:80,lampBrightness:70,lampTemperature:'warm',lampDirection:'indirect',goal:'comfort'}}
   };
   const LIGHTING_VISUALS = { warm: { glow: 'rgba(255,190,105,.72)', lamp: '#f3d084', rgb: '245,182,63' }, neutral: { glow: 'rgba(198,225,255,.72)', lamp: '#c7e7ff', rgb: '177,218,255' } };
   const SUPPORTED_SLAT_ANGLES = [0, 30, 45, 80];
@@ -507,7 +496,7 @@ body[data-scene='evening'] .lamp { border-color: #ffcb61; filter: drop-shadow(0 
   // In automatic mode each covered row receives full tint; uncovered rows
   // remain clear. Manual mode separately stores one level for each row.
   function automaticTintFor(row, scenario) {
-    return row <= scenario.coverage ? 'high' : 'low';
+    return scenario.devices.tints[row - 1];
   }
 
   // ============================================================
@@ -608,7 +597,7 @@ body[data-scene='evening'] .lamp { border-color: #ffcb61; filter: drop-shadow(0 
   // 3. State: three shared glass rows plus independent blind controls.
   // ============================================================
   let language = 'de';
-  let activeScenario = 'sunny';
+  let activeScenario = 'sunrise';
   let automaticMode = true;
   let manualStateInitialized = false;
   let manualBlindPosition = 55;
@@ -622,13 +611,13 @@ body[data-scene='evening'] .lamp { border-color: #ffcb61; filter: drop-shadow(0 
   function blindSettings() {
     const model = scenarios[activeScenario];
     return automaticMode
-      ? { position: model.blindPosition, angle: model.slatAngle }
+      ? { position: model.devices.blindPosition, angle: model.devices.slatAngle }
       : { position: manualBlindPosition, angle: manualSlatAngle };
   }
 
   function lampSettings() {
     const model = scenarios[activeScenario];
-    return automaticMode ? { brightness: model.lampBrightness, temperature: model.lampTemperature, direction: model.lampDirection } : { brightness: manualLampBrightness, temperature: manualLampTemperature, direction: manualLampDirection };
+    return automaticMode ? { brightness: model.devices.lampBrightness, temperature: model.devices.lampTemperature, direction: model.devices.lampDirection } : { brightness: manualLampBrightness, temperature: manualLampTemperature, direction: manualLampDirection };
   }
 
   function tintFor(row) {
@@ -643,10 +632,10 @@ body[data-scene='evening'] .lamp { border-color: #ffcb61; filter: drop-shadow(0 
       [1, 2, 3].forEach(row => {
         manualRowTints[row] = automaticTintFor(row, model);
       });
-      manualBlindPosition = model.blindPosition;
-      manualSlatAngle = model.slatAngle;
-      manualLampBrightness = model.lampBrightness;
-      manualLampTemperature = model.lampTemperature; manualLampDirection = model.lampDirection;
+      manualBlindPosition = model.devices.blindPosition;
+      manualSlatAngle = model.devices.slatAngle;
+      manualLampBrightness = model.devices.lampBrightness;
+      manualLampTemperature = model.devices.lampTemperature; manualLampDirection = model.devices.lampDirection;
       manualStateInitialized = true;
     }
     automaticMode = false;
@@ -658,6 +647,13 @@ body[data-scene='evening'] .lamp { border-color: #ffcb61; filter: drop-shadow(0 
     render();
   }
 
+  function applyEnvironment(environment) {
+    const outdoor = document.querySelector('.outdoor-scene'); const [sx, sy, so] = environment.sun; const [mx, my, mo] = environment.moon;
+    outdoor.style.setProperty('--sky', environment.sky); outdoor.style.setProperty('--landscape', environment.land); outdoor.style.setProperty('--sun-x', `${sx}%`); outdoor.style.setProperty('--sun-y', `${sy}%`); outdoor.style.setProperty('--sun-opacity', so); outdoor.style.setProperty('--moon-x', `${mx}%`); outdoor.style.setProperty('--moon-y', `${my}%`); outdoor.style.setProperty('--moon-opacity', mo); outdoor.style.setProperty('--stars-opacity', environment.stars); outdoor.style.setProperty('--shooting-opacity', environment.shooting);
+    document.querySelectorAll('.cloud').forEach((cloud, index) => { cloud.style.opacity = environment.clouds[index]; cloud.style.setProperty('--cloud-color', environment.cloud); });
+    document.querySelector('.shooting-star').style.animationPlayState = environment.shooting ? 'running' : 'paused';
+  }
+
   // ============================================================
   // 4. Render both the visual room and the control/metric states
   // ============================================================
@@ -667,6 +663,7 @@ body[data-scene='evening'] .lamp { border-color: #ffcb61; filter: drop-shadow(0 
     document.documentElement.lang = language;
     document.title = t.pageTitle;
     document.body.dataset.scene = activeScenario;
+    applyEnvironment(model.environment);
 
     document.querySelectorAll('[data-i18n]').forEach(el => {
       el.textContent = t[el.dataset.i18n];
@@ -689,8 +686,11 @@ body[data-scene='evening'] .lamp { border-color: #ffcb61; filter: drop-shadow(0 
 
     document.querySelectorAll('.choice').forEach(button => {
       const selected = button.dataset.target === activeScenario;
+      const name = scenarios[button.dataset.target].labels[language];
       button.classList.toggle('active', selected);
       button.setAttribute('aria-pressed', String(selected));
+      button.setAttribute('aria-label', name);
+      button.querySelector('.scenario-name').textContent = name;
     });
 
     document.querySelectorAll('.tint-option').forEach(button => {
@@ -711,7 +711,7 @@ body[data-scene='evening'] .lamp { border-color: #ffcb61; filter: drop-shadow(0 
     document.getElementById('tintFeedback').textContent =
       automaticMode ? t.tintAutoFeedback : t.tintManualFeedback;
     document.getElementById('glassValue').textContent = automaticMode
-      ? `${model.coverage}/3 · ${t.states.autoSuffix}`
+      ? `${t.states.autoSuffix} · ${model.devices.tints.map(tint => t.states[tint]).join(' / ')}`
       : t.glassManualStatus(t.states[manualRowTints[1]], t.states[manualRowTints[2]],
                             t.states[manualRowTints[3]]);
     document.querySelectorAll('.tint-option').forEach(button => {
@@ -757,7 +757,7 @@ body[data-scene='evening'] .lamp { border-color: #ffcb61; filter: drop-shadow(0 
     document.querySelectorAll('[data-temperature]').forEach(button => { const selected = button.dataset.temperature === temperature; button.classList.toggle('active', selected); button.setAttribute('aria-pressed', String(selected)); button.disabled = automaticMode; });
     document.querySelectorAll('[data-direction]').forEach(button => { const selected = button.dataset.direction === direction; button.classList.toggle('active', selected); button.setAttribute('aria-pressed', String(selected)); button.disabled = automaticMode; });
     document.getElementById('lightValue').textContent = t.lightStatus(brightness);
-    document.getElementById('goalValue').textContent = t.states[model.goal];
+    document.getElementById('goalValue').textContent = t.states[model.devices.goal];
   }
 
   // ============================================================
@@ -807,9 +807,9 @@ body[data-scene='evening'] .lamp { border-color: #ffcb61; filter: drop-shadow(0 
   document.addEventListener('keydown', event => {
     if (event.altKey || event.ctrlKey || event.metaKey || event.repeat ||
         ['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement.tagName)) return;
-    if (event.key === '1') activeScenario = 'sunny';
+    if (event.key === '1') activeScenario = 'strongSun';
     else if (event.key === '2') activeScenario = 'cloudy';
-    else if (event.key === '3') activeScenario = 'evening';
+    else if (event.key === '3') activeScenario = 'night';
     else if (['4', '5', '6'].includes(event.key)) {
       switchToManualMode();
       const row = Number(event.key) - 3;
