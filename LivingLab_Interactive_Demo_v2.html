@@ -113,6 +113,9 @@ h1 { margin: 5px 0; font-size: 38px; letter-spacing: -1px; color: var(--navy); }
 .sun { position: absolute; z-index: 1; top: 11%; left: 16%; font-size: clamp(32px, 6vw, 65px); color: #ffe78d; filter: drop-shadow(0 0 15px #fff6a0); transition: opacity .8s, transform .8s; }
 .bulb { position: absolute; left: 57%; top: 10%; height: 25%; width: 34%; background: radial-gradient(ellipse at 50% 10%, #ffdc7b99, #ffdc7b00 75%); opacity: .5; transition: opacity .8s; }
 .lamp { position: absolute; z-index: 5; left: 65%; top: 14%; height: 12px; width: 19%; background: #687d88; border-radius: 0 0 7px 7px; border-bottom: 5px solid #f3d084; transition: border-color .8s, filter .8s, opacity .8s; }
+.light-effect { position: absolute; z-index: 2; pointer-events: none; opacity: 0; transition: opacity .8s, background .8s; }
+.direct-light { left: 56%; top: 17%; width: 37%; height: 56%; background: radial-gradient(ellipse at 55% 0%, var(--lamp-glow), transparent 70%); clip-path: polygon(26% 0, 74% 0, 100% 100%, 0 100%); }
+.indirect-light { left: 55%; top: 0; width: 39%; height: 28%; background: radial-gradient(ellipse at 55% 100%, var(--lamp-glow), transparent 72%); }
 .desk { position: absolute; left: 8%; width: 86%; height: 10%; bottom: 7%; background: #b49a81; transform: skewX(-19deg); box-shadow: 1px 12px 0 #806954; }
 .chair { position: absolute; left: 67%; bottom: 12%; height: 13%; width: 13%; background: #36546b; border-radius: 8px 8px 2px 2px; transform: skewX(-7deg); }
 /* Understated annotations identify the facade systems without looking clickable. */
@@ -183,15 +186,15 @@ h1 { margin: 5px 0; font-size: 38px; letter-spacing: -1px; color: var(--navy); }
     width: 18px;
 }
 
-.controls { padding: 19px; }
+.controls { padding: 14px; }
 .controls h2 { font-size: 22px; margin: 0 0 7px; color: var(--navy); }
 .controls p { line-height: 1.5; margin: 0 0 12px; font-size: 14px; }
-.choice { width: 100%; display: flex; align-items: center; gap: 12px; text-align: left; border: 1.4px solid #bbd0dd; border-radius: 9px; background: #fff; color: var(--ink); padding: 10px 13px; margin-bottom: 8px; cursor: pointer; font: inherit; font-size: 15px; transition: background .2s, border-color .2s, transform .2s; }
+.scenario-choices { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
+.choice { width: 100%; display: flex; align-items: center; gap: 7px; text-align: left; border: 1.4px solid #bbd0dd; border-radius: 8px; background: #fff; color: var(--ink); padding: 7px 8px; margin: 0; cursor: pointer; font: inherit; font-size: 13px; transition: background .2s, border-color .2s, transform .2s; }
 .choice:hover { background: #f1f7fb; transform: translateX(3px); }
 .choice.active { background: #e4f1f9; border-color: var(--blue); box-shadow: inset 5px 0 0 #337ba8; }
-.choice .emoji { font-size: 25px; }
-.choice span small { display: block; color: #607c8c; font-size: 12px; margin-top: 3px; }
-.tint-box { background: #f7fafc; border: 1px solid #d0dfe7; border-radius: 9px; padding: 14px 14px 10px; margin-top: 13px; }
+.choice .emoji { font-size: 21px; }.choice span small, .scenarioIntro, .mode-explain, .tint-explain, .tint-feedback { display: none; }
+.tint-box, .blind-box, .lighting-box { padding: 9px; margin-top: 7px; }
 .tint-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
 .tint-head h3 { margin: 0; font-size: 16px; color: #1e4965; }
 .auto-choice { font: inherit; font-size: 12px; font-weight: 700; border-radius: 6px; padding: 7px 9px; border: 1px solid #b9cdd9; background: #fff; color: #3a6480; cursor: pointer; white-space: nowrap; }
@@ -208,7 +211,7 @@ h1 { margin: 5px 0; font-size: 38px; letter-spacing: -1px; color: var(--navy); }
 .swatch.medium { background: #81a9c2; }
 .swatch.high { background: #284b67; }
 .tint-feedback { font-size: 12px; color: #496c80; margin-top: 8px; min-height: 15px; }
-.mode-box { margin-top: 13px; padding: 12px 14px; background: #edf5f9; border: 1px solid #c6dbe7; border-radius: 9px; }
+.mode-box { margin-top: 7px; padding: 8px 10px; background: #edf5f9; border: 1px solid #c6dbe7; border-radius: 9px; }
 .mode-box .tint-head { align-items: center; }
 .mode-control { display: flex; gap: 7px; }
 .mode-control .auto-choice { min-width: 92px; }
@@ -220,16 +223,13 @@ h1 { margin: 5px 0; font-size: 38px; letter-spacing: -1px; color: var(--navy); }
 .blind-control input, .lighting-control input { width: 100%; margin: 8px 0 0; accent-color: #285f86; }
 .lighting-control { margin-top: 12px; }
 .brightness-scale { display: flex; justify-content: space-between; margin-top: 4px; font-size: 11px; color: #607788; }
-.slat-options { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 7px; margin-top: 8px; }
-.slat-option { min-height: 54px; display: grid; place-items: center; gap: 3px; border: 1px solid #b7cdda; border-radius: 7px; background: #fff; color: #184059; cursor: pointer; font: inherit; font-size: 12px; font-weight: 700; }
-.slat-option:hover { border-color: #438bb4; background: #f0f7fb; }
-.slat-option.active { border: 2px solid #297da9; background: #e5f3fb; }
+.slat-options { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 5px; margin-top: 5px; }
+.slat-option, .angle-option { min-height: 48px; display: grid; place-items: center; border: 1px solid #b7cdda; border-radius: 7px; background: #fff; color: #184059; cursor: pointer; font: inherit; font-size: 12px; font-weight: 700; }
+.slat-option:hover, .angle-option:hover { border-color: #438bb4; background: #f0f7fb; }.slat-option.active, .angle-option.active { border: 2px solid #297da9; background: #e5f3fb; }
+.lighting-options { display:grid; grid-template-columns:1fr 1fr; gap:7px; margin-top:7px; }.lighting-choice-group{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:4px}.lighting-choice{min-height:30px;border:1px solid #b7cdda;border-radius:6px;background:#fff;color:#184059;cursor:pointer;font:inherit;font-size:11px;font-weight:700;padding:4px}.lighting-choice.active{border:2px solid #297da9;background:#e5f3fb;padding:3px}.lighting-choice:disabled{cursor:not-allowed;opacity:.5}
 .slat-preview { display: block; width: 28px; height: 14px; background: linear-gradient(rgb(64 81 93 / var(--preview-obstruction, .05)), rgb(64 81 93 / var(--preview-obstruction, .05))), repeating-linear-gradient(180deg, #657681aa 0 3px, transparent 3px 6px); }
 .blind-box input:disabled, .lighting-box input:disabled, .slat-option:disabled, .tint-option:disabled, .angle-option:disabled { cursor: not-allowed; opacity: .5; }
-.results { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 12px; border-top: 1px solid #d9e3e8; padding-top: 12px; }
-.metric { padding: 10px; border-radius: 8px; background: #f2f7fa; }
-.metric b { display: block; color: #5c7787; font-size: 12px; margin-bottom: 5px; }
-.metric span { font-size: 14px; font-weight: 700; color: #1e4a68; }
+.results { display: grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:5px; margin-top:7px; border-top:1px solid #d9e3e8; padding-top:7px; }.metric{padding:6px;border-radius:6px;background:#f2f7fa}.metric b{display:block;color:#5c7787;font-size:10px;margin-bottom:2px}.metric span{font-size:12px;font-weight:700;color:#1e4a68}
 .footer { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-top: 16px; color: #627784; font-size: 13px; }
 .disclaimer { padding: 9px 12px; background: #f9f4e7; border-radius: 6px; border: 1px solid #e4dabb; }
 
@@ -275,7 +275,7 @@ body[data-scene='evening'] .lamp { border-color: #ffcb61; filter: drop-shadow(0 
 
 
 @media (prefers-reduced-motion: reduce) {
-  .ec-segment::after, .blind, .blind::after, .sun, .bulb, .lamp, .choice { transition: none !important; }
+  .ec-segment::after, .blind, .blind::after, .sun, .bulb, .lamp, .light-effect, .choice { transition: none !important; }
 }
 
   </style>
@@ -343,6 +343,7 @@ body[data-scene='evening'] .lamp { border-color: #ffcb61; filter: drop-shadow(0 
           </div>
 
           <div class="bulb"></div>
+          <div class="light-effect direct-light" aria-hidden="true"></div><div class="light-effect indirect-light" aria-hidden="true"></div>
           <div class="lamp"></div>
           <div class="chair"></div>
           <div class="desk"></div>
@@ -366,7 +367,7 @@ body[data-scene='evening'] .lamp { border-color: #ffcb61; filter: drop-shadow(0 
         <h2 data-i18n="scenarioQuestion">Was passiert draußen?</h2>
         <p data-i18n-html="scenarioIntro">Wähle ein Szenario. Beobachte, wie sich <strong>Glas, Jalousien und Beleuchtung</strong> verändern.</p>
 
-        <button type="button" class="choice active" data-target="sunny">
+        <div class="scenario-choices"><button type="button" class="choice active" data-target="sunny">
           <span class="emoji">☀️</span>
           <span><strong data-i18n="sceneSunny">Starke Sonne</strong><small data-i18n="sceneSunnyDesc">Blendung vermeiden</small></span>
         </button>
@@ -377,7 +378,7 @@ body[data-scene='evening'] .lamp { border-color: #ffcb61; filter: drop-shadow(0 
         <button type="button" class="choice" data-target="evening">
           <span class="emoji">🌙</span>
           <span><strong data-i18n="sceneEvening">Abend</strong><small data-i18n="sceneEveningDesc">Raumbeleuchtung anpassen</small></span>
-        </button>
+        </button></div>
 
         <!-- One mode governs both electrochromic glass and blinds. -->
         <section class="mode-box" aria-labelledby="modeTitle">
@@ -455,6 +456,7 @@ body[data-scene='evening'] .lamp { border-color: #ffcb61; filter: drop-shadow(0 
             <input id="lampBrightness" type="range" min="0" max="100" value="12" step="1">
             <div class="brightness-scale"><span data-i18n="brightnessOff">Aus</span><span data-i18n="brightnessMaximum">Maximal</span></div>
           </div>
+          <div class="lighting-options"><div class="lighting-choice-group" role="group" data-i18n-aria="temperatureGroup" aria-label="Lichtfarbe"><button type="button" class="lighting-choice" data-temperature="warm" data-i18n="warmWhite">Warmweiß</button><button type="button" class="lighting-choice" data-temperature="neutral" data-i18n="neutralWhite">Neutralweiß</button></div><div class="lighting-choice-group" role="group" data-i18n-aria="directionGroup" aria-label="Lichtrichtung"><button type="button" class="lighting-choice" data-direction="direct" data-i18n="directLight">Direkt</button><button type="button" class="lighting-choice" data-direction="indirect" data-i18n="indirectLight">Indirekt</button></div></div>
         </section>
 
         <div class="results">
@@ -492,10 +494,11 @@ body[data-scene='evening'] .lamp { border-color: #ffcb61; filter: drop-shadow(0 
   // This restores the original automatic 1/3, 2/3, 3/3 coverage behavior.
   // The upper row is filled first, consistently across all four windows.
   const scenarios = {
-    sunny:   { coverage: 3, blindPosition: 55, slatAngle: 45, lampBrightness: 12, light: 'reduced',  goal: 'glare' },
-    cloudy:  { coverage: 1, blindPosition: 8,  slatAngle: 0,  lampBrightness: 58, light: 'asNeeded', goal: 'daylight' },
-    evening: { coverage: 2, blindPosition: 82, slatAngle: 80, lampBrightness: 100, light: 'on',       goal: 'comfort' }
+    sunny:   { coverage: 3, blindPosition: 55, slatAngle: 45, lampBrightness: 12, lampTemperature: 'neutral', lampDirection: 'indirect', light: 'reduced',  goal: 'glare' },
+    cloudy:  { coverage: 1, blindPosition: 8,  slatAngle: 0,  lampBrightness: 58, lampTemperature: 'neutral', lampDirection: 'direct', light: 'asNeeded', goal: 'daylight' },
+    evening: { coverage: 2, blindPosition: 82, slatAngle: 80, lampBrightness: 100, lampTemperature: 'warm', lampDirection: 'indirect', light: 'on', goal: 'comfort' }
   };
+  const LIGHTING_VISUALS = { warm: { glow: 'rgba(255,190,105,.72)', lamp: '#f3d084', rgb: '245,182,63' }, neutral: { glow: 'rgba(198,225,255,.72)', lamp: '#c7e7ff', rgb: '177,218,255' } };
   const SUPPORTED_SLAT_ANGLES = [0, 30, 45, 80];
   // Illustrative coverage mapping: stripes stay horizontal; this dark overlay
   // controls how much outdoor scenery remains visible behind them.
@@ -545,6 +548,7 @@ body[data-scene='evening'] .lamp { border-color: #ffcb61; filter: drop-shadow(0 
       tintCell: (row, tint) => `${row}: ${tint}`,
       lightingTitle: 'Beleuchtung', lampBrightness: 'Helligkeit', brightnessOff: 'Aus', brightnessMaximum: 'Maximal',
       lightStatus: brightness => `Helligkeit ${brightness}%`,
+      temperatureGroup: 'Lichtfarbe', directionGroup: 'Lichtrichtung', warmWhite: 'Warmweiß', neutralWhite: 'Neutralweiß', directLight: 'Direkt', indirectLight: 'Indirekt',
       glassMetric: 'Elektrochromes Glas', blindsMetric: 'Jalousien',
       lightingMetric: 'Künstliches Licht', goalMetric: 'Ziel',
       states: { low: 'Keine Tönung', medium: 'Mittlere Tönung', high: 'Volle Tönung',
@@ -588,6 +592,7 @@ body[data-scene='evening'] .lamp { border-color: #ffcb61; filter: drop-shadow(0 
       tintCell: (row, tint) => `${row}: ${tint}`,
       lightingTitle: 'Lighting', lampBrightness: 'Brightness', brightnessOff: 'Off', brightnessMaximum: 'Maximum',
       lightStatus: brightness => `Brightness ${brightness}%`,
+      temperatureGroup: 'Light colour', directionGroup: 'Light direction', warmWhite: 'Warm white', neutralWhite: 'Neutral white', directLight: 'Direct', indirectLight: 'Indirect',
       glassMetric: 'Electrochromic glass', blindsMetric: 'Blinds',
       lightingMetric: 'Artificial light', goalMetric: 'Goal',
       states: { low: 'No tint', medium: 'Medium tint', high: 'Full tint',
@@ -609,6 +614,7 @@ body[data-scene='evening'] .lamp { border-color: #ffcb61; filter: drop-shadow(0 
   let manualBlindPosition = 55;
   let manualSlatAngle = 45;
   let manualLampBrightness = 12;
+  let manualLampTemperature = 'neutral'; let manualLampDirection = 'indirect';
   const electrochromicSegments = [...document.querySelectorAll('.ec-segment')];
   const manualRowTints = { 1: 'high', 2: 'high', 3: 'high' };
   const languageSelect = document.getElementById('languageSelect');
@@ -620,10 +626,9 @@ body[data-scene='evening'] .lamp { border-color: #ffcb61; filter: drop-shadow(0 
       : { position: manualBlindPosition, angle: manualSlatAngle };
   }
 
-  function lampBrightness() {
-    return automaticMode
-      ? scenarios[activeScenario].lampBrightness
-      : manualLampBrightness;
+  function lampSettings() {
+    const model = scenarios[activeScenario];
+    return automaticMode ? { brightness: model.lampBrightness, temperature: model.lampTemperature, direction: model.lampDirection } : { brightness: manualLampBrightness, temperature: manualLampTemperature, direction: manualLampDirection };
   }
 
   function tintFor(row) {
@@ -641,6 +646,7 @@ body[data-scene='evening'] .lamp { border-color: #ffcb61; filter: drop-shadow(0 
       manualBlindPosition = model.blindPosition;
       manualSlatAngle = model.slatAngle;
       manualLampBrightness = model.lampBrightness;
+      manualLampTemperature = model.lampTemperature; manualLampDirection = model.lampDirection;
       manualStateInitialized = true;
     }
     automaticMode = false;
@@ -731,19 +737,25 @@ body[data-scene='evening'] .lamp { border-color: #ffcb61; filter: drop-shadow(0 
     document.getElementById('blindValue').textContent =
       t.blindStatus(automaticMode ? t.states.autoSuffix : t.states.manualSuffix,
                     blinds.position, blinds.angle);
-    const brightness = lampBrightness();
+    const { brightness, temperature, direction } = lampSettings();
     const brightnessFraction = brightness / 100;
+    const visual = LIGHTING_VISUALS[temperature];
     const bulb = document.querySelector('.bulb');
     const lamp = document.querySelector('.lamp');
+    const directLight = document.querySelector('.direct-light'); const indirectLight = document.querySelector('.indirect-light');
     bulb.style.opacity = String(brightnessFraction);
     lamp.style.opacity = String(.35 + (.65 * brightnessFraction));
-    lamp.style.borderBottomColor = brightness === 0 ? '#687d88' : '#f3d084';
+    lamp.style.borderBottomColor = brightness === 0 ? '#687d88' : visual.lamp;
     lamp.style.filter = brightness === 0
       ? 'none'
-      : `drop-shadow(0 0 ${Math.round(3 + (brightnessFraction * 10))}px rgba(245, 182, 63, ${brightnessFraction}))`;
+      : `drop-shadow(0 0 ${Math.round(3 + (brightnessFraction * 10))}px rgba(${visual.rgb}, ${brightnessFraction}))`;
+    [directLight, indirectLight].forEach(effect => { effect.style.setProperty('--lamp-glow', visual.glow); effect.style.opacity = '0'; });
+    (direction === 'direct' ? directLight : indirectLight).style.opacity = String(brightnessFraction * .8);
     document.getElementById('lampBrightness').value = String(brightness);
     document.getElementById('lampBrightness').disabled = automaticMode;
     document.getElementById('lampBrightnessValue').textContent = `${brightness}%`;
+    document.querySelectorAll('[data-temperature]').forEach(button => { const selected = button.dataset.temperature === temperature; button.classList.toggle('active', selected); button.setAttribute('aria-pressed', String(selected)); button.disabled = automaticMode; });
+    document.querySelectorAll('[data-direction]').forEach(button => { const selected = button.dataset.direction === direction; button.classList.toggle('active', selected); button.setAttribute('aria-pressed', String(selected)); button.disabled = automaticMode; });
     document.getElementById('lightValue').textContent = t.lightStatus(brightness);
     document.getElementById('goalValue').textContent = t.states[model.goal];
   }
@@ -778,6 +790,8 @@ body[data-scene='evening'] .lamp { border-color: #ffcb61; filter: drop-shadow(0 
     manualLampBrightness = Number(event.target.value);
     render();
   });
+  document.querySelectorAll('[data-temperature]').forEach(button => button.addEventListener('click', () => { manualLampTemperature = button.dataset.temperature; render(); }));
+  document.querySelectorAll('[data-direction]').forEach(button => button.addEventListener('click', () => { manualLampDirection = button.dataset.direction; render(); }));
   document.querySelectorAll('.angle-option').forEach(button => {
     button.addEventListener('click', () => {
       const angle = Number(button.dataset.angle);
