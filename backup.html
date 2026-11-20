@@ -1,0 +1,812 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Living Lab · Interaktive Demonstration</title>
+  <style>
+
+/* =============================================================
+   LIVING LAB DEMO
+   1. Theme and application shell
+   2. Room and physical window layout
+   3. Controls and results
+   4. Scenario animations
+   5. Responsive layout and accessibility
+   ============================================================= */
+
+/* 1. Theme and application shell */
+:root {
+  --navy: #183753;
+  --blue: #337ba8;
+  --line: #c8d7df;
+  --ink: #183044;
+  --bg: #f5f8fa;
+}
+
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--ink); font-family: Arial, 'Segoe UI', sans-serif; }
+main { max-width: 1510px; margin: auto; padding: 22px 35px 15px; }
+.top { display: flex; justify-content: space-between; align-items: start; gap: 18px; border-bottom: 2px solid #c1d2dd; padding-bottom: 12px; }
+.eyebrow { color: #4c7894; text-transform: uppercase; font-size: 13px; font-weight: 700; letter-spacing: 1.8px; }
+h1 { margin: 5px 0; font-size: 38px; letter-spacing: -1px; color: var(--navy); }
+.sub { font-size: 18px; color: #506a7b; }
+.mark { font-size: 19px; font-weight: 700; color: var(--navy); margin-top: 9px; }
+.header-tools { display: flex; flex-direction: column; align-items: end; gap: 8px; }
+.language-switch { display: flex; align-items: center; gap: 10px; }
+.language-switch label { color: #60798a; font-size: 13px; font-weight: 700; }
+.language-switch select { border: 1px solid #a6bdcb; background: #fff; color: #163d58; font: inherit; font-size: 15px; font-weight: 700; padding: 9px 30px 9px 12px; border-radius: 8px; cursor: pointer; }
+.layout { display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(340px, 1fr); gap: 24px; margin-top: 20px; }
+.stage, .panel { background: #fff; border: 1px solid var(--line); border-radius: 13px; box-shadow: 0 4px 12px #163d5712; }
+.stage { padding: 18px; min-width: 0; }
+.stage-head { display: flex; justify-content: space-between; align-items: center; padding: 3px 5px 12px; font-weight: 700; color: var(--navy); }
+.tag { font-size: 12px; font-weight: 700; color: #638096; letter-spacing: .4px; }
+
+/* 2. Room and physical window layout
+   The facade contains TWO blind windows, ONE structural column,
+   and FOUR electrochromic windows (THREE horizontal zones each).
+   Use CSS grid to keep their proportions consistent at every size.
+*/
+.scene { position: relative; height: min(54vh, 505px); min-height: 340px; overflow: hidden; border-radius: 6px; background: #eef0f1; }
+.walls { position: absolute; inset: 0; background: linear-gradient(175deg, #fbfaf8 0%, #e5e3de 100%); }
+.ceiling { position: absolute; top: 0; left: 0; width: 100%; height: 15%; background: #d4d9da; clip-path: polygon(0 0, 100% 0, 100% 100%, 0 76%); }
+.facade { 
+  position: absolute; 
+  top: 23%; 
+  left: 5%; 
+  right: 5%; 
+  height: 52%; 
+  display: grid; 
+  grid-template-columns: 1fr 4.2% 1fr; 
+  align-items: stretch; 
+  filter: drop-shadow(5px 7px 6px #0002); }
+  /* Window arrangement: tinted glass | column | blinds */
+
+.electrochromic-bank {
+    grid-column: 1;
+    grid-row: 1;
+}
+
+.structural-column {
+    grid-column: 2;
+    grid-row: 1;
+}
+
+.blinds-bank {
+    grid-column: 3;
+    grid-row: 1;
+}
+.blinds-bank { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); border: 5px solid #344c5d; background: #344c5d; gap: 4px; min-width: 0; }
+.structural-column { background: linear-gradient(90deg, #d2d3d0, #f5f2ec 42%, #dbdcd7); border-left: 1px solid #bfc7c9; border-right: 1px solid #bcc5c8; }
+.electrochromic-bank {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    border: 5px solid #344c5d;
+    gap: 3px;
+    min-width: 0;
+    background: #344c5d;
+}
+.blind-window, .ec-window { position: relative; min-width: 0; overflow: hidden; }
+.blind-window { background: linear-gradient(180deg, #91c9e6 0%, #b7dfed 65%, #8daa9e 66%, #6e9781 100%); }
+.blind-window::before, .ec-window::before { content: ''; position: absolute; inset: 0; background: linear-gradient(148deg, transparent 42%, #ffffff30 43% 44%, transparent 46%); pointer-events: none; z-index: 4; }
+@property --slat-obstruction { syntax: '<number>'; inherits: true; initial-value: 0; }
+/* Horizontal slats remain a separate, translucent layer over the outdoor view. */
+.blind { position: absolute; left: 0; right: 0; top: 0; height: var(--blind-position, 12%); z-index: 3; background: repeating-linear-gradient(180deg, #95a0a9aa 0 8px, #586a75bb 8px 11px, #ecf1f5a0 11px 14px); box-shadow: 0 4px 7px #0004; transition: height .8s, --slat-obstruction .8s; }
+.blind::after { content: ''; position: absolute; inset: 0; background: #40515d; opacity: var(--slat-obstruction); pointer-events: none; }
+.ec-window { 
+  display: grid; 
+  grid-template-rows: repeat(3, minmax(0, 1fr)); 
+  gap: 0; 
+  border: 0;
+  background: linear-gradient(180deg, #91c9e6 0%, #b7dfed 65%, #8daa9e 66%, #6e9781 100%); }
+.ec-segment { 
+  position: relative; 
+  min-height: 0; 
+  display: block; 
+  border: 0;
+  margin: 0;
+  padding: 0;
+  background: transparent;
+}
+.ec-segment::after { content: ''; position: absolute; inset: 0; background: #16334e; opacity: var(--tint-opacity, .035); transition: opacity .8s ease; }
+.ec-segment::after { pointer-events: none; }
+.sun { position: absolute; z-index: 1; top: 11%; left: 16%; font-size: clamp(32px, 6vw, 65px); color: #ffe78d; filter: drop-shadow(0 0 15px #fff6a0); transition: opacity .8s, transform .8s; }
+.bulb { position: absolute; left: 57%; top: 10%; height: 25%; width: 34%; background: radial-gradient(ellipse at 50% 10%, #ffdc7b99, #ffdc7b00 75%); opacity: .5; transition: opacity .8s; }
+.lamp { position: absolute; z-index: 5; left: 65%; top: 14%; height: 12px; width: 19%; background: #687d88; border-radius: 0 0 7px 7px; border-bottom: 5px solid #f3d084; transition: border-color .8s, filter .8s; }
+.desk { position: absolute; left: 8%; width: 86%; height: 10%; bottom: 7%; background: #b49a81; transform: skewX(-19deg); box-shadow: 1px 12px 0 #806954; }
+.chair { position: absolute; left: 67%; bottom: 12%; height: 13%; width: 13%; background: #36546b; border-radius: 8px 8px 2px 2px; transform: skewX(-7deg); }
+.label { position: absolute; z-index: 6; background: #ffffffed; border: 1px solid #b1c4cf; border-radius: 6px; padding: 6px 9px; font-size: 13px; font-weight: 700; box-shadow: 0 2px 7px #0002; }
+.l1 { top: 5%; left: 5%; }
+.l2 {
+    top: 72%;
+    right: 6%;
+    left: auto;
+    bottom: auto;
+}
+
+.l3 {
+    top: 72%;
+    left: 6%;
+    right: auto;
+    bottom: auto;
+}
+.flow { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 10px; margin: 13px 0 3px; font-size: 15px; }
+.flow b { padding: 9px 13px; border: 1px solid #cedde6; border-radius: 6px; background: #fff; color: #315774; }
+.flow .arrow { color: #5c839d; font-weight: 900; }
+
+/* 3. Controls and result metrics */
+/* More expressive slat-angle icons */
+.slat-icon {
+    width: 52px;
+    height: 34px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 5px;
+    margin: 0 auto 6px;
+}
+
+.slat-icon span {
+    display: block;
+    width: 28px;
+    height: 4px;
+    border-radius: 3px;
+    background: #9fb2bf;
+    transform-origin: center;
+    transition: transform 0.2s ease;
+}
+
+/* 0° */
+.slat-0 span:nth-child(1),
+.slat-0 span:nth-child(2),
+.slat-0 span:nth-child(3) {
+    transform: rotate(0deg);
+}
+
+/* 30° */
+.slat-30 span:nth-child(1),
+.slat-30 span:nth-child(2),
+.slat-30 span:nth-child(3) {
+    transform: rotate(-15deg);
+}
+
+/* 45° */
+.slat-45 span:nth-child(1),
+.slat-45 span:nth-child(2),
+.slat-45 span:nth-child(3) {
+    transform: rotate(-25deg);
+    width: 24px;
+}
+
+/* 80° */
+.slat-80 {
+    gap: 4px;
+}
+
+.slat-80 span:nth-child(1),
+.slat-80 span:nth-child(2),
+.slat-80 span:nth-child(3) {
+    transform: rotate(-75deg);
+    width: 18px;
+}
+
+.controls { padding: 19px; }
+.controls h2 { font-size: 22px; margin: 0 0 7px; color: var(--navy); }
+.controls p { line-height: 1.5; margin: 0 0 12px; font-size: 14px; }
+.choice { width: 100%; display: flex; align-items: center; gap: 12px; text-align: left; border: 1.4px solid #bbd0dd; border-radius: 9px; background: #fff; color: var(--ink); padding: 10px 13px; margin-bottom: 8px; cursor: pointer; font: inherit; font-size: 15px; transition: background .2s, border-color .2s, transform .2s; }
+.choice:hover { background: #f1f7fb; transform: translateX(3px); }
+.choice.active { background: #e4f1f9; border-color: var(--blue); box-shadow: inset 5px 0 0 #337ba8; }
+.choice .emoji { font-size: 25px; }
+.choice span small { display: block; color: #607c8c; font-size: 12px; margin-top: 3px; }
+.tint-box { background: #f7fafc; border: 1px solid #d0dfe7; border-radius: 9px; padding: 14px 14px 10px; margin-top: 13px; }
+.tint-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.tint-head h3 { margin: 0; font-size: 16px; color: #1e4965; }
+.auto-choice { font: inherit; font-size: 12px; font-weight: 700; border-radius: 6px; padding: 7px 9px; border: 1px solid #b9cdd9; background: #fff; color: #3a6480; cursor: pointer; white-space: nowrap; }
+.auto-choice.active { background: #285f86; color: #fff; border-color: #285f86; }
+.tint-explain { font-size: 12px !important; color: #657f8f; margin: 8px 0 10px !important; }
+.tint-rows { display: grid; gap: 10px; }
+.tint-row { display: grid; grid-template-columns: 58px minmax(0, 1fr); align-items: center; gap: 8px; }
+.tint-row-label { font-size: 12px; font-weight: 700; color: #315774; }
+.tint-options { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 7px; }
+.tint-option { display: flex; flex-direction: column; align-items: center; gap: 3px; cursor: pointer; background: #fff; border: 1px solid #b7cdda; border-radius: 7px; padding: 7px 4px 6px; color: #184059; font: inherit; }
+.tint-option:hover { border-color: #438bb4; background: #f0f7fb; }
+.tint-option.active { border: 2px solid #297da9; background: #e5f3fb; padding: 6px 3px 5px; }
+.tint-option strong { font-size: 13px; }
+.tint-option small { font-size: 11px; color: #607788; }
+.swatch { display: block; width: 40px; height: 22px; border: 2px solid #66889e; border-radius: 3px; background: #9ecce7; }
+.swatch.low { background: #d4e9f4; }
+.swatch.medium { background: #81a9c2; }
+.swatch.high { background: #284b67; }
+.tint-feedback { font-size: 12px; color: #496c80; margin-top: 8px; min-height: 15px; }
+.mode-box { margin-top: 13px; padding: 12px 14px; background: #edf5f9; border: 1px solid #c6dbe7; border-radius: 9px; }
+.mode-box .tint-head { align-items: center; }
+.mode-control { display: flex; gap: 7px; }
+.mode-control .auto-choice { min-width: 92px; }
+.mode-explain { font-size: 12px !important; color: #657f8f; margin: 7px 0 0 !important; }
+.blind-box { background: #f7fafc; border: 1px solid #d0dfe7; border-radius: 9px; padding: 14px; margin-top: 13px; }
+.blind-control { margin-top: 12px; }
+.blind-control label { display: flex; justify-content: space-between; gap: 10px; font-size: 13px; font-weight: 700; color: #315774; }
+.blind-control input { width: 100%; margin: 8px 0 0; accent-color: #285f86; }
+.slat-options { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 7px; margin-top: 8px; }
+.slat-option { min-height: 54px; display: grid; place-items: center; gap: 3px; border: 1px solid #b7cdda; border-radius: 7px; background: #fff; color: #184059; cursor: pointer; font: inherit; font-size: 12px; font-weight: 700; }
+.slat-option:hover { border-color: #438bb4; background: #f0f7fb; }
+.slat-option.active { border: 2px solid #297da9; background: #e5f3fb; }
+.slat-preview { display: block; width: 28px; height: 14px; background: linear-gradient(rgb(64 81 93 / var(--preview-obstruction, .05)), rgb(64 81 93 / var(--preview-obstruction, .05))), repeating-linear-gradient(180deg, #657681aa 0 3px, transparent 3px 6px); }
+.blind-box input:disabled, .slat-option:disabled, .tint-option:disabled { cursor: not-allowed; opacity: .5; }
+.results { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 12px; border-top: 1px solid #d9e3e8; padding-top: 12px; }
+.metric { padding: 10px; border-radius: 8px; background: #f2f7fa; }
+.metric b { display: block; color: #5c7787; font-size: 12px; margin-bottom: 5px; }
+.metric span { font-size: 14px; font-weight: 700; color: #1e4a68; }
+.footer { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-top: 16px; color: #627784; font-size: 13px; }
+.disclaimer { padding: 9px 12px; background: #f9f4e7; border-radius: 6px; border: 1px solid #e4dabb; }
+
+/* 4. Automatic response to the three existing scenarios */
+body[data-scene='sunny'] .bulb { opacity: .12; }
+body[data-scene='sunny'] .sun { opacity: 1; }
+body[data-scene='cloudy'] .bulb { opacity: .58; }
+body[data-scene='cloudy'] .sun { opacity: .14; transform: translateY(9px); }
+body[data-scene='evening'] .bulb { opacity: 1; }
+body[data-scene='evening'] .sun { opacity: 0; }
+body[data-scene='evening'] .blind-window,
+body[data-scene='evening'] .ec-window { background: linear-gradient(180deg, #51617c, #526e71); }
+body[data-scene='evening'] .lamp { border-color: #ffcb61; filter: drop-shadow(0 0 11px #f5b63f); }
+
+/* 5. Responsive layout and accessibility */
+.language-switch select:focus-visible, .choice:focus-visible,
+.tint-option:focus-visible, .auto-choice:focus-visible, .slat-option:focus-visible, .angle-option:focus-visible { outline: 3px solid #3c8db8; outline-offset: 3px; }
+@media (max-width: 1100px) { .mark { font-size: 14px; } }
+@media (max-width: 900px) {
+  main { padding: 15px; }
+  .top { flex-direction: column; }
+  .header-tools { width: 100%; flex-direction: row; justify-content: space-between; align-items: center; }
+  h1 { font-size: 30px; }
+  .layout { grid-template-columns: 1fr; }
+  .scene { height: 410px; }
+}
+@media (max-width: 520px) {
+    h1 { font-size: 27px; }
+    .sub { font-size: 15px; }
+    .language-switch select { font-size: 14px; }
+    .scene { height: 340px; min-height: 300px; }
+    .facade {
+        left: 3%;
+        right: 3%;
+        grid-template-columns: 1fr 3% 1fr;
+    }
+    .blinds-bank { border-width: 3px; gap: 2px; }
+    .label { font-size: 11px; padding: 5px; }
+    .footer { flex-direction: column; align-items: start; }
+    .tint-row { grid-template-columns: 1fr; gap: 4px; }
+}
+
+
+@media (prefers-reduced-motion: reduce) {
+  .ec-segment::after, .blind, .blind::after, .sun, .bulb, .lamp, .choice { transition: none !important; }
+}
+
+/* Window labels after swapping the window groups */
+
+/* Blinds: right side */
+.l2 {
+    top: 72%;
+    bottom: auto;
+    left: auto;
+    right: 7%;
+}
+
+/* Electrochromic glass label */
+.l3 {
+    top: 72%;
+    bottom: auto;
+    left: 7%;
+    right: auto;
+}
+
+  </style>
+</head>
+<body data-scene="sunny">
+  <main>
+    <!-- Header and language selection -->
+    <header class="top">
+      <div>
+        <div class="eyebrow" data-i18n="eyebrow">Living Lab · Demo für Schülerinnen und Schüler</div>
+        <h1 data-i18n="headline">Wie reagiert ein intelligenter Raum?</h1>
+        <div class="sub" data-i18n="subtitle">Licht, Jalousien und elektrochrome Fenster arbeiten zusammen.</div>
+      </div>
+      <div class="header-tools">
+        <div class="language-switch">
+          <label for="languageSelect" data-i18n="languageLabel">Sprache</label>
+          <select id="languageSelect" aria-label="Language / Sprache">
+            <option value="de">Deutsch</option>
+            <option value="en">English</option>
+          </select>
+        </div>
+        <div class="mark" data-i18n="brandLine">Smart Office · Demonstration</div>
+      </div>
+    </header>
+
+    <div class="layout">
+      <!-- Left panel: room illustration -->
+      <section class="stage">
+        <div class="stage-head">
+          <span data-i18n="room">Der Raum</span>
+          <span class="tag" data-i18n="simBadge">KONZEPTSIMULATION</span>
+        </div>
+        <div class="scene">
+          <div class="walls"></div>
+          <div class="ceiling"></div>
+          <!-- Physical facade: 2 blinds | column | 4 electrochromic panes -->
+          <div class="facade" aria-label="Six windows: two with blinds and four electrochromic">
+            <div class="blinds-bank">
+              <div class="blind-window"><div class="sun" aria-hidden="true">☀</div><div class="blind"></div></div>
+              <div class="blind-window"><div class="blind"></div></div>
+            </div>
+            <div class="structural-column" aria-hidden="true"></div>
+            <div class="electrochromic-bank">
+              <div class="ec-window" aria-label="Electrochromic window 1">
+                <div class="ec-segment" data-row="1" aria-hidden="true"></div>
+                <div class="ec-segment" data-row="2" aria-hidden="true"></div>
+                <div class="ec-segment" data-row="3" aria-hidden="true"></div>
+              </div>
+              <div class="ec-window" aria-label="Electrochromic window 2">
+                <div class="ec-segment" data-row="1" aria-hidden="true"></div>
+                <div class="ec-segment" data-row="2" aria-hidden="true"></div>
+                <div class="ec-segment" data-row="3" aria-hidden="true"></div>
+              </div>
+              <div class="ec-window" aria-label="Electrochromic window 3">
+                <div class="ec-segment" data-row="1" aria-hidden="true"></div>
+                <div class="ec-segment" data-row="2" aria-hidden="true"></div>
+                <div class="ec-segment" data-row="3" aria-hidden="true"></div>
+              </div>
+              <div class="ec-window" aria-label="Electrochromic window 4">
+                <div class="ec-segment" data-row="1" aria-hidden="true"></div>
+                <div class="ec-segment" data-row="2" aria-hidden="true"></div>
+                <div class="ec-segment" data-row="3" aria-hidden="true"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="bulb"></div>
+          <div class="lamp"></div>
+          <div class="chair"></div>
+          <div class="desk"></div>
+          <div class="label l1" data-i18n="sunlight">☀ Tageslicht</div>
+          <div class="label l2" data-i18n="blindsLabel">↕ Jalousien</div>
+          <div class="label l3" data-i18n="glassLabel">◐ Elektrochromes Glas</div>
+        </div>
+        <div class="flow">
+          <b data-i18n="flowWeather">Wetter / Tageslicht</b>
+          <span class="arrow">→</span>
+          <b data-i18n="flowSensors">Sensoren</b>
+          <span class="arrow">→</span>
+          <b data-i18n="flowControl">Steuerung</b>
+          <span class="arrow">→</span>
+          <b data-i18n="flowRoom">Raum</b>
+        </div>
+      </section>
+
+      <!-- Right panel: preserve the original scenarios and controls -->
+      <section class="panel controls">
+        <h2 data-i18n="scenarioQuestion">Was passiert draußen?</h2>
+        <p data-i18n-html="scenarioIntro">Wähle ein Szenario. Beobachte, wie sich <strong>Glas, Jalousien und Beleuchtung</strong> verändern.</p>
+
+        <button type="button" class="choice active" data-target="sunny">
+          <span class="emoji">☀️</span>
+          <span><strong data-i18n="sceneSunny">Starke Sonne</strong><small data-i18n="sceneSunnyDesc">Blendung vermeiden</small></span>
+        </button>
+        <button type="button" class="choice" data-target="cloudy">
+          <span class="emoji">☁️</span>
+          <span><strong data-i18n="sceneCloudy">Bewölkt</strong><small data-i18n="sceneCloudyDesc">Mehr Tageslicht nutzen</small></span>
+        </button>
+        <button type="button" class="choice" data-target="evening">
+          <span class="emoji">🌙</span>
+          <span><strong data-i18n="sceneEvening">Abend</strong><small data-i18n="sceneEveningDesc">Raumbeleuchtung anpassen</small></span>
+        </button>
+
+        <!-- One mode governs both electrochromic glass and blinds. -->
+        <section class="mode-box" aria-labelledby="modeTitle">
+          <div class="tint-head">
+            <h3 id="modeTitle" data-i18n="controlModeTitle">Steuerungsmodus</h3>
+            <div class="mode-control" role="group" data-i18n-aria="controlModeGroup" aria-label="Steuerungsmodus">
+              <button type="button" id="automaticMode" class="auto-choice active" aria-pressed="true" data-i18n="automatic">Automatisch</button>
+              <button type="button" id="manualMode" class="auto-choice" aria-pressed="false" data-i18n="manual">Manuell</button>
+            </div>
+          </div>
+          <p class="mode-explain" data-i18n="controlModeIntro">Automatisch folgt dem Wetter; manuell ermöglicht separate Einstellungen für Glas und Jalousien.</p>
+        </section>
+
+        <section class="tint-box" aria-labelledby="tintTitle">
+          <div class="tint-head">
+            <h3 id="tintTitle" data-i18n="tintTitle">Elektrochromes Glas</h3>
+          </div>
+          <p class="tint-explain" data-i18n="tintIntro">Stelle die Tönung für jede der drei Reihen über alle vier Fenster ein.</p>
+          <div id="tintRows" class="tint-rows">
+            <div class="tint-row" role="group" data-i18n-aria="tintTopGroup" aria-label="Tönung der oberen Reihe">
+              <span class="tint-row-label" data-i18n="tintTop">Oben</span>
+              <div class="tint-options">
+                <button type="button" class="tint-option" data-row="1" data-tint="low" aria-pressed="false"><span class="swatch low" aria-hidden="true"></span><strong data-i18n="tintLow">Keine</strong><small data-i18n="tintLowDesc">transparent</small></button>
+                <button type="button" class="tint-option" data-row="1" data-tint="medium" aria-pressed="false"><span class="swatch medium" aria-hidden="true"></span><strong data-i18n="tintMedium">Mittel</strong><small data-i18n="tintMediumDesc">mittlere Tönung</small></button>
+                <button type="button" class="tint-option" data-row="1" data-tint="high" aria-pressed="false"><span class="swatch high" aria-hidden="true"></span><strong data-i18n="tintHigh">Voll</strong><small data-i18n="tintHighDesc">starke Tönung</small></button>
+              </div>
+            </div>
+            <div class="tint-row" role="group" data-i18n-aria="tintMiddleGroup" aria-label="Tönung der mittleren Reihe">
+              <span class="tint-row-label" data-i18n="tintMiddle">Mitte</span>
+              <div class="tint-options">
+                <button type="button" class="tint-option" data-row="2" data-tint="low" aria-pressed="false"><span class="swatch low" aria-hidden="true"></span><strong data-i18n="tintLow">Keine</strong><small data-i18n="tintLowDesc">transparent</small></button>
+                <button type="button" class="tint-option" data-row="2" data-tint="medium" aria-pressed="false"><span class="swatch medium" aria-hidden="true"></span><strong data-i18n="tintMedium">Mittel</strong><small data-i18n="tintMediumDesc">mittlere Tönung</small></button>
+                <button type="button" class="tint-option" data-row="2" data-tint="high" aria-pressed="false"><span class="swatch high" aria-hidden="true"></span><strong data-i18n="tintHigh">Voll</strong><small data-i18n="tintHighDesc">starke Tönung</small></button>
+              </div>
+            </div>
+            <div class="tint-row" role="group" data-i18n-aria="tintBottomGroup" aria-label="Tönung der unteren Reihe">
+              <span class="tint-row-label" data-i18n="tintBottom">Unten</span>
+              <div class="tint-options">
+                <button type="button" class="tint-option" data-row="3" data-tint="low" aria-pressed="false"><span class="swatch low" aria-hidden="true"></span><strong data-i18n="tintLow">Keine</strong><small data-i18n="tintLowDesc">transparent</small></button>
+                <button type="button" class="tint-option" data-row="3" data-tint="medium" aria-pressed="false"><span class="swatch medium" aria-hidden="true"></span><strong data-i18n="tintMedium">Mittel</strong><small data-i18n="tintMediumDesc">mittlere Tönung</small></button>
+                <button type="button" class="tint-option" data-row="3" data-tint="high" aria-pressed="false"><span class="swatch high" aria-hidden="true"></span><strong data-i18n="tintHigh">Voll</strong><small data-i18n="tintHighDesc">starke Tönung</small></button>
+              </div>
+            </div>
+          </div>
+          <div class="tint-feedback" id="tintFeedback" aria-live="polite"></div>
+        </section>
+
+        <!-- Blind controls share the mode above, but remain independently adjustable in manual mode. -->
+        <section class="blind-box" aria-labelledby="blindTitle">
+          <div class="tint-head">
+            <h3 id="blindTitle" data-i18n="blindTitle">Jalousien</h3>
+          </div>
+          <div class="blind-control">
+            <label for="blindPosition"><span data-i18n="blindPosition">Position</span><output id="blindPositionValue" for="blindPosition">55%</output></label>
+            <input id="blindPosition" type="range" min="0" max="100" value="55" step="1">
+          </div>
+          <div class="blind-control">
+            <label><span data-i18n="slatAngle">Lamellenwinkel</span><output id="slatAngleValue">45°</output></label>
+            <div id="slatOptions" class="slat-options" role="group" data-i18n-aria="slatAngleGroup" aria-label="Lamellenwinkel auswählen">
+              <button class="angle-option" data-angle="0" type="button">
+                <span class="slat-icon slat-0" aria-hidden="true">
+                  <span></span><span></span><span></span>
+                </span>
+                <strong>0°</strong>
+              </button>
+
+              <button class="angle-option" data-angle="30" type="button">
+                <span class="slat-icon slat-30" aria-hidden="true">
+                  <span></span><span></span><span></span>
+                </span>
+                <strong>30°</strong>
+              </button>
+
+              <button class="angle-option" data-angle="45" type="button">
+                <span class="slat-icon slat-45" aria-hidden="true">
+                  <span></span><span></span><span></span>
+                </span>
+                <strong>45°</strong>
+              </button>
+
+              <button class="angle-option" data-angle="80" type="button">
+                <span class="slat-icon slat-80" aria-hidden="true">
+                  <span></span><span></span><span></span>
+                </span>
+                <strong>80°</strong>
+              </button>
+            </div>
+          </div>
+        </section>
+
+        <div class="results">
+          <div class="metric"><b data-i18n="glassMetric">Elektrochromes Glas</b><span id="glassValue">Automatisch</span></div>
+          <div class="metric"><b data-i18n="blindsMetric">Jalousien</b><span id="blindValue">Teilweise unten</span></div>
+          <div class="metric"><b data-i18n="lightingMetric">Künstliches Licht</b><span id="lightValue">Reduziert</span></div>
+          <div class="metric"><b data-i18n="goalMetric">Ziel</b><span id="goalValue">Weniger Blendung</span></div>
+        </div>
+      </section>
+    </div>
+
+    <footer class="footer">
+      <div class="disclaimer" data-i18n="disclaimer">Konzeptdemo: Die Darstellung ist vereinfacht und steuert keine realen Geräte.</div>
+      <span data-i18n="shortcuts">Vollbild: F11 · Szenarien: 1–3 · Glas: 4–6 · Automatik: 0</span>
+    </footer>
+  </main>
+
+  <script>
+
+
+(() => {
+  'use strict';
+
+  // ============================================================
+  // 1. Simulation settings
+  //    Automatic: scenario controls row coverage (1/3, 2/3, 3/3)
+  //    and the blind position plus one supported slat angle.
+  //    Manual: 12 independent zones with three darkness levels;
+  //    blinds retain their own independent position and slat selection.
+  //    Values are illustrative overlay opacities, not measured
+  //    optical transmittance or physical controller settings.
+  // ============================================================
+  const TINT_OPACITY = { low: 0.035, medium: 0.34, high: 0.72 };
+  // Coverage describes HOW MANY rows are tinted, not tint strength.
+  // This restores the original automatic 1/3, 2/3, 3/3 coverage behavior.
+  // The upper row is filled first, consistently across all four windows.
+  const scenarios = {
+    sunny:   { coverage: 3, blindPosition: 55, slatAngle: 45, light: 'reduced',  goal: 'glare' },
+    cloudy:  { coverage: 1, blindPosition: 8,  slatAngle: 0,  light: 'asNeeded', goal: 'daylight' },
+    evening: { coverage: 2, blindPosition: 82, slatAngle: 80, light: 'on',       goal: 'comfort' }
+  };
+  const SUPPORTED_SLAT_ANGLES = [0, 30, 45, 80];
+  // Illustrative coverage mapping: stripes stay horizontal; this dark overlay
+  // controls how much outdoor scenery remains visible behind them.
+  const SLAT_OBSTRUCTION = { 0: 0.05, 30: 0.25, 45: 0.55, 80: 0.9 };
+
+  // In automatic mode each covered row receives full tint; uncovered rows
+  // remain clear. Manual mode separately stores one level for each row.
+  function automaticTintFor(row, scenario) {
+    return row <= scenario.coverage ? 'high' : 'low';
+  }
+
+  // ============================================================
+  // 2. German and English interface text
+  // ============================================================
+  const copy = {
+    de: {
+      pageTitle: 'Living Lab · Interaktive Demonstration',
+      eyebrow: 'Living Lab · Demo für Schülerinnen und Schüler',
+      headline: 'Wie reagiert ein intelligenter Raum?',
+      subtitle: 'Licht, Jalousien und elektrochrome Fenster arbeiten zusammen.',
+      brandLine: 'Smart Office · Demonstration', languageLabel: 'Sprache',
+      room: 'Der Raum', simBadge: 'KONZEPTSIMULATION',
+      sunlight: '☀ Tageslicht', blindsLabel: '↕ Jalousien', glassLabel: '◐ Elektrochromes Glas',
+      flowWeather: 'Wetter / Tageslicht', flowSensors: 'Sensoren',
+      flowControl: 'Steuerung', flowRoom: 'Raum',
+      scenarioQuestion: 'Was passiert draußen?',
+      scenarioIntro: 'Wähle ein Szenario. Beobachte, wie sich <strong>Glas, Jalousien und Beleuchtung</strong> verändern.',
+      sceneSunny: 'Starke Sonne', sceneSunnyDesc: 'Blendung vermeiden',
+      sceneCloudy: 'Bewölkt', sceneCloudyDesc: 'Mehr Tageslicht nutzen',
+      sceneEvening: 'Abend', sceneEveningDesc: 'Raumbeleuchtung anpassen',
+      controlModeTitle: 'Steuerungsmodus', controlModeGroup: 'Steuerungsmodus',
+      controlModeIntro: 'Automatisch folgt dem Wetter. Manuell ermöglicht separate Einstellungen für Glas und Jalousien.',
+      tintTitle: 'Elektrochromes Glas', automatic: 'Automatisch', manual: 'Manuell',
+      tintIntro: 'Stelle die Tönung für jede der drei Reihen über alle vier Fenster ein.',
+      tintLow: 'Keine', tintLowDesc: 'transparent',
+      tintMedium: 'Mittel', tintMediumDesc: 'mittlere Tönung',
+      tintHigh: 'Voll', tintHighDesc: 'starke Tönung',
+      tintTop: 'Oben', tintMiddle: 'Mitte', tintBottom: 'Unten',
+      tintTopGroup: 'Tönung der oberen Reihe', tintMiddleGroup: 'Tönung der mittleren Reihe', tintBottomGroup: 'Tönung der unteren Reihe',
+      tintAutoFeedback: 'Automatik: Der Wettermodus bestimmt die Abdeckung (1/3, 2/3 oder 3/3).',
+      tintManualFeedback: 'Manuell: Obere, mittlere und untere Reihe können unabhängig eingestellt werden.',
+      glassManualStatus: (top, middle, bottom) => `Manuell · Oben: ${top} · Mitte: ${middle} · Unten: ${bottom}`,
+      blindTitle: 'Jalousien',
+      blindPosition: 'Position', slatAngle: 'Lamellenwinkel', slatAngleGroup: 'Lamellenwinkel auswählen',
+      blindStatus: (mode, position, angle) => `${mode} · ${position}% · ${angle}°`,
+      glassMetric: 'Elektrochromes Glas', blindsMetric: 'Jalousien',
+      lightingMetric: 'Künstliches Licht', goalMetric: 'Ziel',
+      states: { low: 'Keine Tönung', medium: 'Mittlere Tönung', high: 'Volle Tönung',
+        reduced: 'Reduziert', asNeeded: 'Nach Bedarf', on: 'Eingeschaltet',
+        glare: 'Weniger Blendung', daylight: 'Tageslicht nutzen',
+        comfort: 'Angenehmes Licht', autoSuffix: 'Automatisch', manualSuffix: 'Manuell' },
+      disclaimer: 'Konzeptdemo: Die Darstellung ist vereinfacht und steuert keine realen Geräte.',
+      shortcuts: 'Vollbild: F11 · Szenarien: 1–3 · Reihen: 4–6 · Manuell: M · Automatik: 0'
+    },
+    en: {
+      pageTitle: 'Living Lab · Interactive Demonstration',
+      eyebrow: 'Living Lab · Demonstration for school students',
+      headline: 'How does a smart room respond?',
+      subtitle: 'Lights, blinds and electrochromic windows work together.',
+      brandLine: 'Smart Office · Demonstration', languageLabel: 'Language',
+      room: 'The room', simBadge: 'ILLUSTRATIVE SIMULATION',
+      sunlight: '☀ Daylight', blindsLabel: '↕ Blinds', glassLabel: '◐ Electrochromic glass',
+      flowWeather: 'Weather / daylight', flowSensors: 'Sensors',
+      flowControl: 'Control system', flowRoom: 'Room',
+      scenarioQuestion: 'What is happening outside?',
+      scenarioIntro: 'Choose a scenario. Watch how <strong>glass, blinds and lighting</strong> change.',
+      sceneSunny: 'Strong sunshine', sceneSunnyDesc: 'Reduce glare',
+      sceneCloudy: 'Cloudy', sceneCloudyDesc: 'Make use of daylight',
+      sceneEvening: 'Evening', sceneEveningDesc: 'Adjust room lighting',
+      controlModeTitle: 'Control mode', controlModeGroup: 'Control mode',
+      controlModeIntro: 'Automatic follows the weather. Manual enables separate glass and blind settings.',
+      tintTitle: 'Electrochromic glass', automatic: 'Automatic', manual: 'Manual',
+      tintIntro: 'Set the tint for each of the three rows across all four windows.',
+      tintLow: 'None', tintLowDesc: 'clear',
+      tintMedium: 'Medium', tintMediumDesc: 'moderate tint',
+      tintHigh: 'Full', tintHighDesc: 'strong tint',
+      tintTop: 'Top', tintMiddle: 'Middle', tintBottom: 'Bottom',
+      tintTopGroup: 'Tint of top row', tintMiddleGroup: 'Tint of middle row', tintBottomGroup: 'Tint of bottom row',
+      tintAutoFeedback: 'Automatic: Weather determines coverage (1/3, 2/3 or 3/3).',
+      tintManualFeedback: 'Manual: Top, middle and bottom rows can be adjusted independently.',
+      glassManualStatus: (top, middle, bottom) => `Manual · Top: ${top} · Middle: ${middle} · Bottom: ${bottom}`,
+      blindTitle: 'Blinds',
+      blindPosition: 'Position', slatAngle: 'Slat angle', slatAngleGroup: 'Choose slat angle',
+      blindStatus: (mode, position, angle) => `${mode} · ${position}% · ${angle}°`,
+      glassMetric: 'Electrochromic glass', blindsMetric: 'Blinds',
+      lightingMetric: 'Artificial light', goalMetric: 'Goal',
+      states: { low: 'No tint', medium: 'Medium tint', high: 'Full tint',
+        reduced: 'Reduced', asNeeded: 'As needed', on: 'On',
+        glare: 'Less glare', daylight: 'Use daylight',
+        comfort: 'Comfortable lighting', autoSuffix: 'Automatic', manualSuffix: 'Manual' },
+      disclaimer: 'Concept demonstration: This is a simplified simulation and does not control real devices.',
+      shortcuts: 'Fullscreen: F11 · Scenarios: 1–3 · Rows: 4–6 · Manual: M · Automatic: 0'
+    }
+  };
+
+  // ============================================================
+  // 3. State: three shared glass rows plus independent blind controls.
+  // ============================================================
+  let language = 'de';
+  let activeScenario = 'sunny';
+  let automaticMode = true;
+  let manualStateInitialized = false;
+  let manualBlindPosition = 55;
+  let manualSlatAngle = 45;
+  const electrochromicSegments = [...document.querySelectorAll('.ec-segment')];
+  const manualRowTints = { 1: 'high', 2: 'high', 3: 'high' };
+  const languageSelect = document.getElementById('languageSelect');
+
+  function blindSettings() {
+    const model = scenarios[activeScenario];
+    return automaticMode
+      ? { position: model.blindPosition, angle: model.slatAngle }
+      : { position: manualBlindPosition, angle: manualSlatAngle };
+  }
+
+  function tintFor(row) {
+    return automaticMode
+      ? automaticTintFor(row, scenarios[activeScenario])
+      : manualRowTints[row];
+  }
+
+  function switchToManualMode() {
+    if (!manualStateInitialized) {
+      const model = scenarios[activeScenario];
+      [1, 2, 3].forEach(row => {
+        manualRowTints[row] = automaticTintFor(row, model);
+      });
+      manualBlindPosition = model.blindPosition;
+      manualSlatAngle = model.slatAngle;
+      manualStateInitialized = true;
+    }
+    automaticMode = false;
+  }
+
+  function setRowTint(row, tint) {
+    if (automaticMode) switchToManualMode();
+    manualRowTints[row] = tint;
+    render();
+  }
+
+  // ============================================================
+  // 4. Render both the visual room and the control/metric states
+  // ============================================================
+  function render() {
+    const t = copy[language];
+    const model = scenarios[activeScenario];
+    document.documentElement.lang = language;
+    document.title = t.pageTitle;
+    document.body.dataset.scene = activeScenario;
+
+    document.querySelectorAll('[data-i18n]').forEach(el => {
+      el.textContent = t[el.dataset.i18n];
+    });
+    document.querySelectorAll('[data-i18n-html]').forEach(el => {
+      el.innerHTML = t[el.dataset.i18nHtml];
+    });
+    document.querySelectorAll('[data-i18n-aria]').forEach(el => {
+      el.setAttribute('aria-label', t[el.dataset.i18nAria]);
+    });
+
+    electrochromicSegments.forEach(segment => {
+      const row = Number(segment.dataset.row);
+      const tint = tintFor(row);
+      segment.style.setProperty('--tint-opacity', TINT_OPACITY[tint]);
+    });
+
+    document.querySelectorAll('.choice').forEach(button => {
+      const selected = button.dataset.target === activeScenario;
+      button.classList.toggle('active', selected);
+      button.setAttribute('aria-pressed', String(selected));
+    });
+
+    document.querySelectorAll('.tint-option').forEach(button => {
+      const row = Number(button.dataset.row);
+      const selected = button.dataset.tint === tintFor(row);
+      button.classList.toggle('active', selected);
+      button.setAttribute('aria-pressed', String(selected));
+    });
+
+    const automaticButton = document.getElementById('automaticMode');
+    const manualButton = document.getElementById('manualMode');
+    automaticButton.classList.toggle('active', automaticMode);
+    automaticButton.setAttribute('aria-pressed', String(automaticMode));
+    manualButton.classList.toggle('active', !automaticMode);
+    manualButton.setAttribute('aria-pressed', String(!automaticMode));
+    document.getElementById('tintFeedback').textContent =
+      automaticMode ? t.tintAutoFeedback : t.tintManualFeedback;
+    document.getElementById('glassValue').textContent = automaticMode
+      ? `${model.coverage}/3 · ${t.states.autoSuffix}`
+      : t.glassManualStatus(t.states[manualRowTints[1]], t.states[manualRowTints[2]],
+                            t.states[manualRowTints[3]]);
+    document.querySelectorAll('.tint-option').forEach(button => {
+      button.disabled = automaticMode;
+    });
+    const blinds = blindSettings();
+    document.querySelectorAll('.blind').forEach(blind => {
+      blind.style.setProperty('--blind-position', `${blinds.position}%`);
+      blind.style.setProperty('--slat-obstruction', SLAT_OBSTRUCTION[blinds.angle]);
+    });
+    document.getElementById('blindPosition').value = String(blinds.position);
+    document.getElementById('blindPosition').disabled = automaticMode;
+    document.getElementById('blindPositionValue').textContent = `${blinds.position}%`;
+    document.getElementById('slatAngleValue').textContent = `${blinds.angle}°`;
+    document.querySelectorAll('.angle-option').forEach(button => {
+      const selected = Number(button.dataset.angle) === blinds.angle;
+      button.classList.toggle('active', selected);
+      button.setAttribute('aria-pressed', String(selected));
+      button.disabled = automaticMode;
+      button.querySelector('.slat-preview')?.style.setProperty(
+        '--preview-obstruction', SLAT_OBSTRUCTION[Number(button.dataset.angle)]);
+    });
+    document.getElementById('blindValue').textContent =
+      t.blindStatus(automaticMode ? t.states.autoSuffix : t.states.manualSuffix,
+                    blinds.position, blinds.angle);
+    document.getElementById('lightValue').textContent = t.states[model.light];
+    document.getElementById('goalValue').textContent = t.states[model.goal];
+  }
+
+  // ============================================================
+  // 5. Events and original keyboard shortcuts
+  // ============================================================
+  document.querySelectorAll('.choice').forEach(button => {
+    button.addEventListener('click', () => {
+      activeScenario = button.dataset.target;
+      render();
+    });
+  });
+  document.querySelectorAll('.tint-option').forEach(button => {
+    button.addEventListener('click', () => {
+      setRowTint(Number(button.dataset.row), button.dataset.tint);
+    });
+  });
+  document.getElementById('automaticMode').addEventListener('click', () => {
+    automaticMode = true;
+    render();
+  });
+  document.getElementById('manualMode').addEventListener('click', () => {
+    switchToManualMode();
+    render();
+  });
+  document.getElementById('blindPosition').addEventListener('input', event => {
+    manualBlindPosition = Number(event.target.value);
+    render();
+  });
+  document.querySelectorAll('.angle-option').forEach(button => {
+    button.addEventListener('click', () => {
+      const angle = Number(button.dataset.angle);
+      if (!SUPPORTED_SLAT_ANGLES.includes(angle)) return;
+      manualSlatAngle = angle;
+      render();
+    });
+  });
+  languageSelect.addEventListener('change', () => {
+    language = languageSelect.value;
+    render();
+  });
+  document.addEventListener('keydown', event => {
+    if (event.altKey || event.ctrlKey || event.metaKey || event.repeat ||
+        ['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement.tagName)) return;
+    if (event.key === '1') activeScenario = 'sunny';
+    else if (event.key === '2') activeScenario = 'cloudy';
+    else if (event.key === '3') activeScenario = 'evening';
+    else if (['4', '5', '6'].includes(event.key)) {
+      switchToManualMode();
+      const row = Number(event.key) - 3;
+      document.querySelector(`.tint-option[data-row="${row}"].active`)?.focus();
+    }
+    else if (event.key.toLowerCase() === 'm') switchToManualMode();
+    else if (event.key === '0') automaticMode = true;
+    else return;
+    render();
+  });
+  render();
+})();
+
+  </script>
+</body>
+</html>
