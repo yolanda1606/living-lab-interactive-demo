@@ -237,9 +237,42 @@ h1 { margin: 5px 0; font-size: 38px; letter-spacing: -1px; color: var(--navy); }
 .footer { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-top: 16px; color: #627784; font-size: 13px; }
 .disclaimer { padding: 9px 12px; background: #f9f4e7; border-radius: 6px; border: 1px solid #e4dabb; }
 
+/* 4. Educational communication visualization: local, simulated, and event-driven. */
+.communication-area { margin-top: 24px; padding: 18px; }
+.communication-head { display: flex; align-items: start; justify-content: space-between; gap: 15px; margin-bottom: 14px; }
+.communication-head h2, .communication-log h3 { margin: 0; color: var(--navy); }
+.communication-head h2 { font-size: 24px; }
+.communication-status { margin: 4px 0 0; color: #607788; font-size: 13px; }
+.simulation-status { flex: 0 0 auto; padding: 6px 9px; border: 1px solid #cfdee6; border-radius: 99px; color: #526e80; background: #f5f9fb; font-size: 12px; font-weight: 700; text-align: center; }
+.communication-diagram { position: relative; display: grid; justify-items: center; gap: 8px; padding: 10px 10px 16px; background: #f7fafc; border: 1px solid #d5e2e9; border-radius: 10px; overflow: hidden; }
+.communication-node { width: min(100%, 230px); position: relative; z-index: 1; border: 1px solid #aac5d5; border-radius: 8px; background: #fff; color: #1d4864; padding: 9px 11px; font: inherit; text-align: left; cursor: pointer; transition: border-color .25s, box-shadow .25s, background .25s; }
+.communication-node:hover { border-color: #4187b0; background: #f1f8fc; }
+.communication-node strong { display: block; font-size: 14px; }
+.communication-node small { display: block; margin-top: 3px; color: #637d8d; font-size: 12px; line-height: 1.25; }
+.communication-node.is-active { border-color: #2077a5; background: #e4f3fb; box-shadow: 0 0 0 3px #5aa3cb3b; }
+.communication-link { position: relative; width: 2px; height: 22px; background: #9ab8c9; }
+.communication-link::after { content: ''; position: absolute; bottom: -1px; left: 50%; width: 7px; height: 7px; border-right: 2px solid #719aad; border-bottom: 2px solid #719aad; transform: translateX(-50%) rotate(45deg); }
+.device-paths { width: min(100%, 900px); display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; align-items: start; }
+.device-path { position: relative; display: grid; justify-items: center; gap: 8px; min-width: 0; padding-top: 20px; }
+.device-path::before { content: ''; position: absolute; top: 0; left: 50%; width: 2px; height: 20px; background: #9ab8c9; }
+.device-path::after { content: ''; position: absolute; top: 14px; left: calc(50% - 3px); width: 7px; height: 7px; border-right: 2px solid #719aad; border-bottom: 2px solid #719aad; transform: rotate(45deg); }
+.protocol-label { min-height: 20px; color: #547487; font-size: 12px; font-weight: 700; text-align: center; }
+.signal-dot { position: absolute; z-index: 2; top: 2px; left: calc(50% - 5px); width: 10px; height: 10px; border-radius: 50%; background: #287da9; box-shadow: 0 0 0 4px #287da92a; opacity: 0; }
+.communication-link.is-active .signal-dot, .device-path.is-active .signal-dot { animation: signal-travel .72s ease-out; }
+.device-path .signal-dot { top: 2px; }
+.mpc-path { display: flex; justify-content: center; align-items: center; gap: 9px; width: min(100%, 400px); margin-top: 2px; color: #657e8d; font-size: 12px; }
+.mpc-line { flex: 1; max-width: 90px; border-top: 2px dotted #8dacbd; }
+.communication-explanation { min-height: 40px; margin: 12px 0 0; padding: 9px 11px; border-left: 3px solid #669bb8; color: #405f72; background: #f2f7fa; font-size: 13px; line-height: 1.4; }
+.communication-log { margin-top: 16px; padding-top: 14px; border-top: 1px solid #dbe6ec; }
+.communication-log h3 { font-size: 18px; }
+.event-list { display: grid; gap: 6px; margin: 9px 0 0; padding: 0; list-style: none; }
+.event-item { display: grid; grid-template-columns: auto 1fr; gap: 8px; align-items: start; padding: 8px 10px; border: 1px solid #d7e4eb; border-radius: 7px; background: #fff; color: #405f72; font-size: 13px; line-height: 1.35; }
+.event-protocol { padding: 2px 5px; border-radius: 4px; background: #e6f2f8; color: #286181; font-size: 11px; font-weight: 700; white-space: nowrap; }
+@keyframes signal-travel { 0% { opacity: 0; transform: translateY(-4px) scale(.7); } 20% { opacity: 1; } 100% { opacity: 0; transform: translateY(22px) scale(1); } }
+
 /* 5. Responsive layout and accessibility */
 .language-switch select:focus-visible, .choice:focus-visible,
-.tint-option:focus-visible, .auto-choice:focus-visible, .slat-option:focus-visible, .angle-option:focus-visible { outline: 3px solid #3c8db8; outline-offset: 3px; }
+.tint-option:focus-visible, .auto-choice:focus-visible, .slat-option:focus-visible, .angle-option:focus-visible, .communication-node:focus-visible { outline: 3px solid #3c8db8; outline-offset: 3px; }
 @media (max-width: 1100px) { .mark { font-size: 14px; } }
 @media (max-width: 900px) {
   main { padding: 15px; }
@@ -248,6 +281,7 @@ h1 { margin: 5px 0; font-size: 38px; letter-spacing: -1px; color: var(--navy); }
   h1 { font-size: 30px; }
   .layout { grid-template-columns: 1fr; }
   .scene { height: 410px; }
+  .device-paths { gap: 9px; }
 }
 @media (max-width: 520px) {
     h1 { font-size: 27px; }
@@ -264,11 +298,17 @@ h1 { margin: 5px 0; font-size: 38px; letter-spacing: -1px; color: var(--navy); }
     .footer { flex-direction: column; align-items: start; }
     .tint-matrix { grid-template-columns: 46px repeat(3, minmax(0, 1fr)); gap: 4px; }
     .swatch { width: 28px; height: 16px; }
+    .communication-area { padding: 13px; }
+    .communication-head { flex-direction: column; }
+    .device-paths { grid-template-columns: 1fr; gap: 4px; }
+    .device-path { padding-top: 14px; }
+    .device-path::before { height: 14px; }
+    .device-path::after { top: 8px; }
 }
 
 
 @media (prefers-reduced-motion: reduce) {
-  .ec-segment::after, .blind, .blind::after, .outdoor-scene, .sun, .moon, .stars, .cloud, .shooting-star, .bulb, .lamp, .light-effect, .choice { transition: none !important; animation: none !important; }
+  .ec-segment::after, .blind, .blind::after, .outdoor-scene, .sun, .moon, .stars, .cloud, .shooting-star, .bulb, .lamp, .light-effect, .choice, .signal-dot { transition: none !important; animation: none !important; }
 }
 
   </style>
@@ -453,6 +493,40 @@ h1 { margin: 5px 0; font-size: 38px; letter-spacing: -1px; color: var(--navy); }
       </section>
     </div>
 
+    <!-- Educational, offline communication model driven by the existing simulation state. -->
+    <section class="panel communication-area" aria-labelledby="communicationTitle">
+      <div class="communication-head">
+        <div>
+          <h2 id="communicationTitle" data-i18n="communicationTitle">Kommunikation im Living Lab</h2>
+          <p class="communication-status" data-i18n="communicationIntro">Historisch dokumentierte Rollen und illustrative, lokale Kommunikationsabläufe.</p>
+        </div>
+        <span class="simulation-status" data-i18n="simulationStatus">Simulierte Kommunikation · Keine Verbindung zu realen Geräten</span>
+      </div>
+      <div class="communication-diagram" data-i18n-aria="communicationDiagram" aria-label="Conceptual communication diagram">
+        <button type="button" class="communication-node" data-comm-node="environment" aria-describedby="communicationExplanation">
+          <strong data-i18n="nodeEnvironment">Umgebung &amp; Sensoren</strong>
+          <small data-i18n="nodeEnvironmentDetail">Szenario, Tageslicht, Sonneneinstrahlung und Wind</small>
+        </button>
+        <div class="communication-link" data-comm-path="environment"><span class="signal-dot" aria-hidden="true"></span></div>
+        <button type="button" class="communication-node" data-comm-node="wago" aria-describedby="communicationExplanation">
+          <strong data-i18n="nodeWago">WAGO 750-831</strong>
+          <small data-i18n="nodeWagoDetail">Historisch dokumentierte zentrale Gebäudeautomation</small>
+        </button>
+        <div class="communication-link" data-comm-path="wago"><span class="signal-dot" aria-hidden="true"></span></div>
+        <div class="device-paths">
+          <div class="device-path" data-comm-path="lighting"><span class="signal-dot" aria-hidden="true"></span><span class="protocol-label" data-i18n="protocolLighting">REST/HTTP + deCONZ · ZigBee</span><button type="button" class="communication-node" data-comm-node="lighting" aria-describedby="communicationExplanation"><strong data-i18n="nodeLighting">Beleuchtung</strong><small data-i18n="nodeLightingDetail">Raspberry Pi / Lichtintegration</small></button></div>
+          <div class="device-path" data-comm-path="blinds"><span class="signal-dot" aria-hidden="true"></span><span class="protocol-label">SMI</span><button type="button" class="communication-node" data-comm-node="blinds" aria-describedby="communicationExplanation"><strong data-i18n="nodeBlinds">Jalousien / Raffstore</strong><small data-i18n="nodeBlindsDetail">Position und Lamellenwinkel</small></button></div>
+          <div class="device-path" data-comm-path="glass"><span class="signal-dot" aria-hidden="true"></span><span class="protocol-label">BACnet</span><button type="button" class="communication-node" data-comm-node="glass" aria-describedby="communicationExplanation"><strong data-i18n="nodeGlass">SageGlass</strong><small data-i18n="nodeGlassDetail">Drei Tönungsreihen</small></button></div>
+        </div>
+        <div class="mpc-path"><span class="mpc-line" aria-hidden="true"></span><button type="button" class="communication-node" data-comm-node="mpc" aria-describedby="communicationExplanation"><strong data-i18n="nodeMpc">Bachmann / LiSA MPC</strong><small data-i18n="nodeMpcDetail">Historische, optionale prädiktive Rolle · Modbus TCP</small></button><span class="mpc-line" aria-hidden="true"></span></div>
+      </div>
+      <p class="communication-explanation" id="communicationExplanation" aria-live="polite"></p>
+      <section class="communication-log" aria-labelledby="communicationLogTitle">
+        <h3 id="communicationLogTitle" data-i18n="communicationLogTitle">Kommunikationsprotokoll</h3>
+        <ol id="eventList" class="event-list" aria-live="polite"></ol>
+      </section>
+    </section>
+
     <footer class="footer">
       <div class="disclaimer" data-i18n="disclaimer">Konzeptdemo: Die Darstellung ist vereinfacht und steuert keine realen Geräte.</div>
       <span data-i18n="shortcuts">Vollbild: F11 · Szenarien: 1–3 · Glas: 4–6 · Automatik: 0</span>
@@ -544,6 +618,27 @@ h1 { margin: 5px 0; font-size: 38px; letter-spacing: -1px; color: var(--navy); }
         reduced: 'Reduziert', asNeeded: 'Nach Bedarf', on: 'Eingeschaltet',
         glare: 'Weniger Blendung', daylight: 'Tageslicht nutzen',
         comfort: 'Angenehmes Licht', autoSuffix: 'Automatisch', manualSuffix: 'Manuell' },
+      communicationTitle: 'Kommunikation im Living Lab',
+      communicationIntro: 'Historisch dokumentierte Rollen und illustrative, lokale Kommunikationsabläufe.',
+      simulationStatus: 'Simulierte Kommunikation · Keine Verbindung zu realen Geräten',
+      communicationDiagram: 'Konzeptionelles Kommunikationsdiagramm',
+      communicationLogTitle: 'Kommunikationsprotokoll',
+      nodeEnvironment: 'Umgebung & Sensoren', nodeEnvironmentDetail: 'Szenario, Tageslicht, Sonneneinstrahlung und Wind',
+      nodeWago: 'WAGO 750-831', nodeWagoDetail: 'Historisch dokumentierte zentrale Gebäudeautomation',
+      nodeLighting: 'Beleuchtung', nodeLightingDetail: 'Raspberry Pi / Lichtintegration',
+      nodeBlinds: 'Jalousien / Raffstore', nodeBlindsDetail: 'Position und Lamellenwinkel',
+      nodeGlass: 'SageGlass', nodeGlassDetail: 'Drei Tönungsreihen',
+      nodeMpc: 'Bachmann / LiSA MPC', nodeMpcDetail: 'Historische, optionale prädiktive Rolle · Modbus TCP',
+      protocolLighting: 'REST/HTTP + deCONZ · ZigBee',
+      localModel: 'Lokales Szenariomodell',
+      explanations: {
+        environment: 'Veranschaulicht Umgebungsinformationen. Es werden keine realen Sensordaten gemessen.',
+        wago: 'Der WAGO 750-831 koordiniert historisch dokumentiert die Gebäudeautomation. Die Entscheidungen dieser Demo laufen lokal im JavaScript-Szenariomodell.',
+        lighting: 'Die Beleuchtungskette zeigt die historische Raspberry-Pi-Integration mit REST/HTTP, deCONZ und ZigBee. Es besteht keine Verbindung zu Hardware.',
+        blinds: 'SMI ist die historisch dokumentierte Schnittstelle für motorisierte Jalousien bzw. Raffstore.',
+        glass: 'BACnet ist der historisch dokumentierte Kommunikationsweg für SageGlass. Die dargestellten Tönungen sind illustrative Opazitäten.',
+        mpc: 'Bachmann / LiSA MPC steht für eine historisch dokumentierte prädiktive Rolle. Die punktierte Modbus-TCP-Beziehung ist konzeptionell und in dieser Demo nicht aktiv.'
+      },
       disclaimer: 'Konzeptdemo: Die Darstellung ist vereinfacht und steuert keine realen Geräte.',
       shortcuts: 'Vollbild: F11 · Szenarien: 1–3 · Reihen: 4–6 · Manuell: M · Automatik: 0'
     },
@@ -588,6 +683,27 @@ h1 { margin: 5px 0; font-size: 38px; letter-spacing: -1px; color: var(--navy); }
         reduced: 'Reduced', asNeeded: 'As needed', on: 'On',
         glare: 'Less glare', daylight: 'Use daylight',
         comfort: 'Comfortable lighting', autoSuffix: 'Automatic', manualSuffix: 'Manual' },
+      communicationTitle: 'Living Lab Communication',
+      communicationIntro: 'Historically documented roles and illustrative, local communication flows.',
+      simulationStatus: 'Simulated communication · No connection to physical devices',
+      communicationDiagram: 'Conceptual communication diagram',
+      communicationLogTitle: 'Communication Log',
+      nodeEnvironment: 'Environment & Sensors', nodeEnvironmentDetail: 'Scenario, daylight, solar irradiation and wind',
+      nodeWago: 'WAGO 750-831', nodeWagoDetail: 'Historically documented central building automation',
+      nodeLighting: 'Lighting', nodeLightingDetail: 'Raspberry Pi / lighting integration',
+      nodeBlinds: 'Venetian blinds / Raffstore', nodeBlindsDetail: 'Position and slat angle',
+      nodeGlass: 'SageGlass', nodeGlassDetail: 'Three tint rows',
+      nodeMpc: 'Bachmann / LiSA MPC', nodeMpcDetail: 'Historical, optional predictive role · Modbus TCP',
+      protocolLighting: 'REST/HTTP + deCONZ · ZigBee',
+      localModel: 'Local scenario model',
+      explanations: {
+        environment: 'Illustrates environmental information. No real sensor data is measured.',
+        wago: 'The WAGO 750-831 historically coordinates building automation. This demo makes decisions locally in its JavaScript scenario model.',
+        lighting: 'The lighting chain shows the historical Raspberry Pi integration with REST/HTTP, deCONZ and ZigBee. It has no hardware connection.',
+        blinds: 'SMI is the historically documented interface for motorized Venetian blinds and Raffstore.',
+        glass: 'BACnet is the historically documented communication path for SageGlass. The displayed tints are illustrative opacities.',
+        mpc: 'Bachmann / LiSA MPC represents a historically documented predictive role. The dotted Modbus TCP relationship is conceptual and inactive in this demo.'
+      },
       disclaimer: 'Concept demonstration: This is a simplified simulation and does not control real devices.',
       shortcuts: 'Fullscreen: F11 · Scenarios: 1–3 · Rows: 4–6 · Manual: M · Automatic: 0'
     }
@@ -607,6 +723,79 @@ h1 { margin: 5px 0; font-size: 38px; letter-spacing: -1px; color: var(--navy); }
   const electrochromicSegments = [...document.querySelectorAll('.ec-segment')];
   const manualRowTints = { 1: 'high', 2: 'high', 3: 'high' };
   const languageSelect = document.getElementById('languageSelect');
+  const communicationEvents = [];
+  let communicationTimers = [];
+  let explainedNode = 'environment';
+
+  // The communication panel reads the existing state above. It never creates
+  // controller, sensor, or device state of its own.
+  function communicationTargets() {
+    const t = copy[language];
+    const blinds = blindSettings();
+    const lamp = lampSettings();
+    return {
+      glass: [1, 2, 3].map(row => t.states[tintFor(row)]).join(' / '),
+      blinds: `${blinds.position}% · ${blinds.angle}°`,
+      lighting: `${lamp.brightness}%`
+    };
+  }
+
+  function formatCommunicationEvent(event) {
+    const t = copy[language];
+    const rowLabel = [null, t.tintTop, t.tintMiddle, t.tintBottom];
+    if (event.type === 'scenario') {
+      const targets = communicationTargets();
+      return `${scenarios[event.scenario].labels[language]}: ${t.nodeWago} requests ${t.nodeGlass} ${targets.glass}; ${t.nodeBlinds} ${targets.blinds}; ${t.nodeLighting} ${targets.lighting}. ${t.goalMetric}: ${t.states[scenarios[event.scenario].devices.goal]}.`;
+    }
+    if (event.type === 'mode') return `${t.controlModeTitle}: ${event.mode === 'automatic' ? t.automatic : t.manual}. ${t.simulationStatus}.`;
+    if (event.type === 'tint') return `${t.manual} → ${t.nodeWago} → BACnet → ${t.nodeGlass}. ${rowLabel[event.row]}: ${t.states[event.tint]}.`;
+    if (event.type === 'blindPosition') return `${t.manual} → ${t.nodeWago} → SMI → ${t.nodeBlinds}. ${t.blindPosition}: ${event.value}%.`;
+    if (event.type === 'blindAngle') return `${t.manual} → ${t.nodeWago} → SMI → ${t.nodeBlinds}. ${t.slatAngle}: ${event.value}°.`;
+    if (event.type === 'lampBrightness') return `${t.manual} → ${t.nodeLighting} → ZigBee. ${t.lampBrightness}: ${event.value}%.`;
+    if (event.type === 'lampTemperature') return `${t.manual} → ${t.nodeLighting} → ZigBee. ${t.temperatureGroup}: ${event.value}.`;
+    if (event.type === 'lampDirection') return `${t.manual} → ${t.nodeLighting} → ZigBee. ${t.directionGroup}: ${event.value}.`;
+    return t.simulationStatus;
+  }
+
+  function renderCommunication() {
+    const t = copy[language];
+    document.getElementById('communicationExplanation').textContent = t.explanations[explainedNode];
+    const list = document.getElementById('eventList');
+    list.replaceChildren(...communicationEvents.map(event => {
+      const item = document.createElement('li');
+      item.className = 'event-item';
+      const protocol = document.createElement('span');
+      protocol.className = 'event-protocol';
+      protocol.textContent = event.protocol === 'local' ? t.localModel : event.protocol;
+      const description = document.createElement('span');
+      description.textContent = formatCommunicationEvent(event);
+      item.append(protocol, description);
+      return item;
+    }));
+  }
+
+  function animateCommunication(paths) {
+    communicationTimers.forEach(timer => clearTimeout(timer));
+    communicationTimers = [];
+    document.querySelectorAll('.communication-node.is-active, [data-comm-path].is-active').forEach(el => el.classList.remove('is-active'));
+    paths.forEach((path, index) => {
+      communicationTimers.push(setTimeout(() => {
+        document.querySelector(`[data-comm-path="${path}"]`)?.classList.add('is-active');
+        const node = path === 'environment' ? 'environment' : path === 'wago' ? 'wago' : path;
+        document.querySelector(`[data-comm-node="${node}"]`)?.classList.add('is-active');
+      }, index * 180));
+    });
+    communicationTimers.push(setTimeout(() => {
+      document.querySelectorAll('.communication-node.is-active, [data-comm-path].is-active').forEach(el => el.classList.remove('is-active'));
+    }, (paths.length * 180) + 850));
+  }
+
+  function emitCommunicationEvent(event) {
+    communicationEvents.unshift({ simulated: true, ...event });
+    communicationEvents.splice(8);
+    animateCommunication(event.paths || ['wago']);
+    renderCommunication();
+  }
 
   function blindSettings() {
     const model = scenarios[activeScenario];
@@ -644,7 +833,6 @@ h1 { margin: 5px 0; font-size: 38px; letter-spacing: -1px; color: var(--navy); }
   function setRowTint(row, tint) {
     if (automaticMode) switchToManualMode();
     manualRowTints[row] = tint;
-    render();
   }
 
   function applyEnvironment(environment) {
@@ -758,6 +946,7 @@ h1 { margin: 5px 0; font-size: 38px; letter-spacing: -1px; color: var(--navy); }
     document.querySelectorAll('[data-direction]').forEach(button => { const selected = button.dataset.direction === direction; button.classList.toggle('active', selected); button.setAttribute('aria-pressed', String(selected)); button.disabled = automaticMode; });
     document.getElementById('lightValue').textContent = t.lightStatus(brightness);
     document.getElementById('goalValue').textContent = t.states[model.devices.goal];
+    renderCommunication();
   }
 
   // ============================================================
@@ -767,60 +956,80 @@ h1 { margin: 5px 0; font-size: 38px; letter-spacing: -1px; color: var(--navy); }
     button.addEventListener('click', () => {
       activeScenario = button.dataset.target;
       render();
+      emitCommunicationEvent({ type: 'scenario', scenario: activeScenario, source: 'environment', destination: 'devices', protocol: 'local', action: 'Set requested targets', reason: scenarios[activeScenario].devices.goal, paths: ['environment', 'wago', 'lighting', 'blinds', 'glass'] });
     });
   });
   document.querySelectorAll('.tint-option').forEach(button => {
     button.addEventListener('click', () => {
-      setRowTint(Number(button.dataset.row), button.dataset.tint);
+      const row = Number(button.dataset.row);
+      setRowTint(row, button.dataset.tint);
+      render();
+      emitCommunicationEvent({ type: 'tint', row, tint: button.dataset.tint, source: 'manual', destination: 'glass', protocol: 'BACnet', action: 'Set tint row', value: button.dataset.tint, reason: 'Manual request', paths: ['wago', 'glass'] });
     });
   });
   document.getElementById('automaticMode').addEventListener('click', () => {
     automaticMode = true;
     render();
+    emitCommunicationEvent({ type: 'mode', mode: 'automatic', source: 'manual', destination: 'wago', protocol: 'local', action: 'Set automatic mode', value: 'automatic', reason: 'Use selected scenario', paths: ['wago', 'lighting', 'blinds', 'glass'] });
   });
   document.getElementById('manualMode').addEventListener('click', () => {
     switchToManualMode();
     render();
+    emitCommunicationEvent({ type: 'mode', mode: 'manual', source: 'manual', destination: 'wago', protocol: 'local', action: 'Set manual mode', value: 'manual', reason: 'Independent settings', paths: ['wago'] });
   });
   document.getElementById('blindPosition').addEventListener('input', event => {
     manualBlindPosition = Number(event.target.value);
     render();
   });
+  document.getElementById('blindPosition').addEventListener('change', event => {
+    emitCommunicationEvent({ type: 'blindPosition', value: Number(event.target.value), source: 'manual', destination: 'blinds', protocol: 'SMI', action: 'Set position', reason: 'Manual request', paths: ['wago', 'blinds'] });
+  });
   document.getElementById('lampBrightness').addEventListener('input', event => {
     manualLampBrightness = Number(event.target.value);
     render();
   });
-  document.querySelectorAll('[data-temperature]').forEach(button => button.addEventListener('click', () => { manualLampTemperature = button.dataset.temperature; render(); }));
-  document.querySelectorAll('[data-direction]').forEach(button => button.addEventListener('click', () => { manualLampDirection = button.dataset.direction; render(); }));
+  document.getElementById('lampBrightness').addEventListener('change', event => {
+    emitCommunicationEvent({ type: 'lampBrightness', value: Number(event.target.value), source: 'manual', destination: 'lighting', protocol: 'ZigBee', action: 'Set brightness', reason: 'Manual request', paths: ['wago', 'lighting'] });
+  });
+  document.querySelectorAll('[data-temperature]').forEach(button => button.addEventListener('click', () => { manualLampTemperature = button.dataset.temperature; render(); emitCommunicationEvent({ type: 'lampTemperature', value: button.textContent, source: 'manual', destination: 'lighting', protocol: 'ZigBee', action: 'Set light colour', reason: 'Manual request', paths: ['wago', 'lighting'] }); }));
+  document.querySelectorAll('[data-direction]').forEach(button => button.addEventListener('click', () => { manualLampDirection = button.dataset.direction; render(); emitCommunicationEvent({ type: 'lampDirection', value: button.textContent, source: 'manual', destination: 'lighting', protocol: 'ZigBee', action: 'Set light direction', reason: 'Manual request', paths: ['wago', 'lighting'] }); }));
   document.querySelectorAll('.angle-option').forEach(button => {
     button.addEventListener('click', () => {
       const angle = Number(button.dataset.angle);
       if (!SUPPORTED_SLAT_ANGLES.includes(angle)) return;
       manualSlatAngle = angle;
       render();
+      emitCommunicationEvent({ type: 'blindAngle', value: angle, source: 'manual', destination: 'blinds', protocol: 'SMI', action: 'Set slat angle', reason: 'Manual request', paths: ['wago', 'blinds'] });
     });
   });
   languageSelect.addEventListener('change', () => {
     language = languageSelect.value;
     render();
   });
+  document.querySelectorAll('[data-comm-node]').forEach(node => node.addEventListener('click', () => {
+    explainedNode = node.dataset.commNode;
+    renderCommunication();
+  }));
   document.addEventListener('keydown', event => {
     if (event.altKey || event.ctrlKey || event.metaKey || event.repeat ||
         ['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement.tagName)) return;
-    if (event.key === '1') activeScenario = 'strongSun';
-    else if (event.key === '2') activeScenario = 'cloudy';
-    else if (event.key === '3') activeScenario = 'night';
+    let communicationEvent;
+    if (event.key === '1') { activeScenario = 'strongSun'; communicationEvent = { type: 'scenario', scenario: activeScenario, source: 'environment', destination: 'devices', protocol: 'local', action: 'Set requested targets', reason: scenarios[activeScenario].devices.goal, paths: ['environment', 'wago', 'lighting', 'blinds', 'glass'] }; }
+    else if (event.key === '2') { activeScenario = 'cloudy'; communicationEvent = { type: 'scenario', scenario: activeScenario, source: 'environment', destination: 'devices', protocol: 'local', action: 'Set requested targets', reason: scenarios[activeScenario].devices.goal, paths: ['environment', 'wago', 'lighting', 'blinds', 'glass'] }; }
+    else if (event.key === '3') { activeScenario = 'night'; communicationEvent = { type: 'scenario', scenario: activeScenario, source: 'environment', destination: 'devices', protocol: 'local', action: 'Set requested targets', reason: scenarios[activeScenario].devices.goal, paths: ['environment', 'wago', 'lighting', 'blinds', 'glass'] }; }
     else if (['4', '5', '6'].includes(event.key)) {
       switchToManualMode();
       const row = Number(event.key) - 3;
       document.querySelector(`.tint-option[data-row="${row}"].active`)?.focus();
     }
-    else if (event.key.toLowerCase() === 'm') switchToManualMode();
-    else if (event.key === '0') automaticMode = true;
+    else if (event.key.toLowerCase() === 'm') { switchToManualMode(); communicationEvent = { type: 'mode', mode: 'manual', source: 'manual', destination: 'wago', protocol: 'local', action: 'Set manual mode', value: 'manual', reason: 'Independent settings', paths: ['wago'] }; }
+    else if (event.key === '0') { automaticMode = true; communicationEvent = { type: 'mode', mode: 'automatic', source: 'manual', destination: 'wago', protocol: 'local', action: 'Set automatic mode', value: 'automatic', reason: 'Use selected scenario', paths: ['wago', 'lighting', 'blinds', 'glass'] }; }
     else return;
     render();
+    if (communicationEvent) emitCommunicationEvent(communicationEvent);
   });
   render();
+  emitCommunicationEvent({ type: 'scenario', scenario: activeScenario, source: 'environment', destination: 'devices', protocol: 'local', action: 'Set requested targets', reason: scenarios[activeScenario].devices.goal, paths: ['environment', 'wago', 'lighting', 'blinds', 'glass'] });
 })();
 
   </script>
