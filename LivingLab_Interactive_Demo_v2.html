@@ -118,8 +118,10 @@ h1 { margin: 5px 0; font-size: 38px; letter-spacing: -1px; color: var(--navy); }
 /* Understated annotations identify the facade systems without looking clickable. */
 .label { position: absolute; z-index: 6; padding: 0; font-size: 12px; font-weight: 700; letter-spacing: .02em; color: #214a64; text-shadow: 0 1px 2px #fff; pointer-events: none; }
 .l1 { top: 5%; right: 5%; }
-.l2 { right: 7%; bottom: 15%; }
-.l3 { top: 80%; left: 7%; }
+/* Both facade-system labels share this anchor: facade ends at 75%; desk begins at 83%. */
+.l2, .l3 { top: 77%; bottom: auto; }
+.l2 { right: 7%; left: auto; }
+.l3 { left: 7%; right: auto; }
 .flow { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 10px; margin: 13px 0 3px; font-size: 15px; }
 .flow b { padding: 9px 13px; border: 1px solid #cedde6; border-radius: 6px; background: #fff; color: #315774; }
 .flow .arrow { color: #5c839d; font-weight: 900; }
