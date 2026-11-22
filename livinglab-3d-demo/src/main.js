@@ -16,4 +16,4 @@ try {
 ui.host.addEventListener('scene-lost', () => ui.showFailure('contextLost'));
 window.addEventListener('pagehide', () => office?.dispose(), { once: true });
 // Opt-in read-only QA diagnostics. No real device endpoints, writes or duplicate state.
-if (new URLSearchParams(location.search).has('inspect')) window.livingLab = Object.freeze({ state: () => store.getState(), scene: () => office?.diagnostics() });
+if (new URLSearchParams(location.search).has('inspect')) window.livingLab = Object.freeze({ state: () => store.getState(), scene: () => office?.diagnostics(), capture: () => office?.captureIllumination() });

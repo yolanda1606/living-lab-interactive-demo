@@ -1,6 +1,7 @@
 import * as T from 'three';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { SLAT_COUNT, slatDrop } from './blind-layout.js';
 import { devices, TINT_OPACITY } from '../simulation/state.js';
 
 // Rendering art direction only; these are not measured solar, optical or lighting values.
@@ -18,7 +19,9 @@ export function createOffice(host, initial, onCameraInteraction) {
   renderer.shadowMap.enabled = true;
   renderer.shadowMap.type = T.PCFSoftShadowMap;
   renderer.toneMapping = T.ACESFilmicToneMapping;
-  renderer.toneMappingExposure = 1.15;
+  renderer.toneMappingExposure = 1.05;
+  renderer.autoClear = false;
+  renderer.info.autoReset = false;
   host.prepend(renderer.domElement);
   renderer.domElement.setAttribute('tabindex', '0');
   const scene = new T.Scene();
@@ -96,16 +99,16 @@ export function createOffice(host, initial, onCameraInteraction) {
     for (const dx of [-.68, .68]) box(frame, x + dx, 1.95, -3.4, .065, 2.38, .13);
     for (const y of [.79, 1.58, 2.34, 3.1]) box(frame, x, y, -3.4, 1.39, .045, .13);
   }
-  const slatMaterial = mat('#c1c9cb', { metalness: .6, roughness: .42 });
+  const slatMaterial = mat('#bbc5ca', { metalness: .25, roughness: .48 });
   const blinds = [];
-  const slatGeometry = geo(new T.BoxGeometry(2.61, .0025, .10));
+  const slatGeometry = geo(new T.BoxGeometry(2.61, .008, .082));
   for (const x of [1.58, 4.33]) {
     for (const dx of [-1.36, 1.36]) box(frame, x + dx, 1.95, -3.4, .075, 2.38, .15);
     for (const y of [.79, 3.1]) box(frame, x, y, -3.4, 2.75, .065, .15);
     const clear = mat('#9fc9d7', { transparent: true, opacity: .045, depthWrite: false, side: T.DoubleSide });
     const glass = mesh(geo(new T.PlaneGeometry(2.63, 2.25)), clear, x, 1.95, -3.48, 1, 1, 1); glass.castShadow = false;
     box(frame, x, 3.08, -3.28, 2.65, .105, .17);
-    const slats = new T.InstancedMesh(slatGeometry, slatMaterial, 27); slats.castShadow = true; slats.receiveShadow = false; slats.instanceMatrix.setUsage(T.DynamicDrawUsage); slats.frustumCulled = false; scene.add(slats);
+    const slats = new T.InstancedMesh(slatGeometry, slatMaterial, SLAT_COUNT); slats.castShadow = true; slats.receiveShadow = false; slats.instanceMatrix.setUsage(T.DynamicDrawUsage); slats.frustumCulled = false; scene.add(slats);
     const rail = box(slatMaterial, x, 2.9, -3.28, 2.64, .045, .12);
     const cords = [-.85, .85].map(dx => box(frame, x + dx, 2, -3.26, .008, 2.2, .008));
     blinds.push({ x, slats, rail, cords });
@@ -150,7 +153,7 @@ export function createOffice(host, initial, onCameraInteraction) {
     box(downMat, x, 2.727, z, 2.08, .012, .17); box(upMat, x, 2.837, z, 2.08, .012, .17);
     const down = new T.SpotLight('#ffdbad', 0, 10, 1.12, .65, 1.4); down.position.set(x, 2.7, z); down.target.position.set(x, 0, z); scene.add(down, down.target);
     const up = new T.SpotLight('#ffdbad', 0, 4, 1.25, .7, 1.3); up.position.set(x, 2.9, z); up.target.position.set(x, 3.4, z); scene.add(up, up.target);
-    const bounce = new T.PointLight('#ffdbad', 0, 8, 1.4); bounce.position.set(x, 3.1, z + .3); scene.add(bounce);
+    const bounce = new T.PointLight('#ffdbad', 0, 10, 1.4); bounce.position.set(x, 2.95, z + .3); scene.add(bounce);
     lamps.push({ down, up, bounce, downMat, upMat });
   }
   const ambient = new T.HemisphereLight('#dcebf5', '#8b877a', 1); scene.add(ambient);
@@ -230,6 +233,35 @@ export function createOffice(host, initial, onCameraInteraction) {
     camera.fov = T.MathUtils.radToDeg(2 * Math.atan(Math.tan(T.MathUtils.degToRad(23)) * Math.max(1, 1.5 / camera.aspect)));
     camera.updateProjectionMatrix();
   }); resize.observe(host);
+  function renderScene() {
+    // Three.js filters lights against the CAMERA's layers, not each mesh's layers.
+    // Rendering both layers together let outdoorHemi illuminate the entire office.
+    // Separate passes isolate light sets while retaining outdoor colour and depth
+    // behind the transparent facade. Do not clear depth between these passes.
+    const background = scene.background;
+    renderer.info.reset();
+    renderer.clear();
+    camera.layers.set(1);
+    renderer.render(scene, camera);
+    scene.background = null;
+    camera.layers.set(0);
+    renderer.render(scene, camera);
+    scene.background = background;
+    camera.layers.enable(1);
+  }
+  function captureIllumination() {
+    // On-demand readback for pixel-level QA, never run by the animation loop.
+    renderScene();
+    const gl = renderer.getContext(), pixel = new Uint8Array(4);
+    const sample = point => {
+      const projected = new T.Vector3(...point).project(camera);
+      const x = Math.round((projected.x * .5 + .5) * gl.drawingBufferWidth);
+      const y = Math.round((projected.y * .5 + .5) * gl.drawingBufferHeight);
+      gl.readPixels(x, y, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, pixel);
+      return [...pixel.slice(0, 3)];
+    };
+    return { floor: [-3, -1.5, 0, 1.5, 3].flatMap(x => [1.5, 2.3].map(z => sample([x, .03, z]))), ceiling: sample([0, 3.36, -.3]) };
+  }
   function frameLoop(now) {
     if (!running) return;
     raf = requestAnimationFrame(frameLoop);
@@ -248,9 +280,9 @@ export function createOffice(host, initial, onCameraInteraction) {
     panes.forEach(p => { const opacity = TINT_OPACITY[target.tints[p.userData.row]]; p.material.opacity = T.MathUtils.lerp(p.material.opacity, opacity, a); tempColor.set(target.tints[p.userData.row] === 'high' ? '#204c78' : '#7b9daa'); p.material.color.lerp(tempColor, a); transmission += 1 - p.material.opacity; });
     transmission /= panes.length;
     position = T.MathUtils.lerp(position, target.blindPosition, a); angle = T.MathUtils.lerp(angle, target.slatAngle, a);
-    const extent = .17 + 2.03 * position / 100;
+    const extent = slatDrop(SLAT_COUNT - 1, position);
     for (const b of blinds) {
-      for (let i = 0; i < 27; i++) { dummy.position.set(b.x, 3.0 - i * extent / 26, -3.27); dummy.rotation.set(T.MathUtils.degToRad(angle), 0, 0); dummy.updateMatrix(); b.slats.setMatrixAt(i, dummy.matrix); }
+      for (let i = 0; i < SLAT_COUNT; i++) { dummy.position.set(b.x, 3.0 - slatDrop(i, position), -3.27); dummy.rotation.set(T.MathUtils.degToRad(angle), 0, 0); dummy.updateMatrix(); b.slats.setMatrixAt(i, dummy.matrix); }
       b.slats.instanceMatrix.needsUpdate = true; b.rail.position.y = 2.97 - extent;
       b.cords.forEach(c => { c.scale.y = extent; c.position.y = 3 - extent / 2; });
     }
@@ -259,7 +291,9 @@ export function createOffice(host, initial, onCameraInteraction) {
     skyColor.set(env.sky); scene.background.lerp(skyColor, a); scene.fog.color.copy(scene.background);
     sun.position.lerp(new T.Vector3(...env.sun), a); lightColor.set(env.color); sun.color.lerp(lightColor, a);
     sun.intensity = T.MathUtils.lerp(sun.intensity, env.direct * entry, a);
-    ambient.intensity = T.MathUtils.lerp(ambient.intensity, .1 + env.diffuse * (.25 + .75 * entry), a);
+    // Daylight fill is coloured by the environment, and becomes very small at night.
+    ambient.color.lerp(lightColor, a);
+    ambient.intensity = T.MathUtils.lerp(ambient.intensity, .035 + env.diffuse * (.12 + .48 * entry), a);
     outdoorHemi.intensity = T.MathUtils.lerp(outdoorHemi.intensity, .06 + env.diffuse * 1.8, a);
     orb.position.lerp(new T.Vector3(env.sun[0] * 2, env.sun[1], -29), a); orbMaterial.color.lerp(lightColor, a);
     cloudMat.opacity = T.MathUtils.lerp(cloudMat.opacity, env.clouds, a); starMat.opacity = T.MathUtils.lerp(starMat.opacity, state.scenario === 'night' ? .85 : 0, a);
@@ -268,18 +302,20 @@ export function createOffice(host, initial, onCameraInteraction) {
     lightColor.set(target.lampTemperature === 'warm' ? '#ffd19b' : '#e4efff');
     for (const l of lamps) {
       for (const light of [l.down, l.up, l.bounce]) light.color.lerp(lightColor, a);
-      l.down.intensity = brightness * direction * 14; l.up.intensity = brightness * (1 - direction) * 12; l.bounce.intensity = brightness * (1 - direction) * 4.5;
+      l.down.intensity = brightness * direction * 26; l.up.intensity = brightness * (1 - direction) * 10;
+      // Approximate reflected ceiling light; Three.js does not calculate diffuse bounce.
+      l.bounce.intensity = brightness * (1 - direction) * 10;
       l.downMat.emissive.lerp(lightColor, a); l.upMat.emissive.lerp(lightColor, a);
-      l.downMat.emissiveIntensity = brightness * (direction * 3 + .03); l.upMat.emissiveIntensity = brightness * ((1 - direction) * 3 + .03);
+      l.downMat.emissiveIntensity = brightness * (direction * 5 + .12); l.upMat.emissiveIntensity = brightness * ((1 - direction) * 5 + .12);
     }
-    renderer.render(scene, camera);
+    renderScene();
   }
   raf = requestAnimationFrame(frameLoop);
   const contextLost = e => { e.preventDefault(); host.dispatchEvent(new Event('scene-lost')); };
   renderer.domElement.addEventListener('webglcontextlost', contextLost);
   return {
-    update, setCamera,
-    diagnostics: () => ({ panes: panes.map(p => ({ ...p.userData, opacity: p.material.opacity })), blindPosition: position, slatAngle: angle, brightness, direction, sun: sun.intensity, sky: scene.background.getHexString(), camera: camera.position.toArray(), lights: lamps.map(l => ({ down: l.down.intensity, up: l.up.intensity, color: l.down.color.getHexString() })), calls: renderer.info.render.calls }),
+    update, setCamera, captureIllumination,
+    diagnostics: () => ({ panes: panes.map(p => ({ ...p.userData, opacity: p.material.opacity })), blindPosition: position, slatAngle: angle, slatDrops: Array.from({ length: SLAT_COUNT }, (_, i) => slatDrop(i, position)), brightness, direction, sun: sun.intensity, sky: scene.background.getHexString(), camera: camera.position.toArray(), lights: lamps.map(l => ({ down: l.down.intensity, up: l.up.intensity, color: l.down.color.getHexString() })), calls: renderer.info.render.calls }),
     dispose() { running = false; cancelAnimationFrame(raf); resize.disconnect(); controls.dispose(); geometries.forEach(g => g.dispose()); materials.forEach(m => m.dispose()); textures.forEach(t => t.dispose()); renderer.dispose(); renderer.domElement.remove(); }
   };
 }

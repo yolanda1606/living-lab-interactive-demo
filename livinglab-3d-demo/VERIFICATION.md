@@ -4,7 +4,7 @@ The original HTML and original logo have no Git diff. All changes are contained 
 
 ## Executed checks
 
-- Seven Node regression tests pass: verbatim comparison of all six original presets (including environment metadata); repeated automatic/manual entry; independent manual controls; automatic edit guards and input validation; immutable communication snapshots; education/language/reset behavior; bilingual dictionary-key parity.
+- Nine Node regression tests pass (including two new blind-deployment geometry tests): verbatim comparison of all six original presets (including environment metadata); repeated automatic/manual entry; independent manual controls; automatic edit guards and input validation; immutable communication snapshots; education/language/reset behavior; bilingual dictionary-key parity.
 - Production build succeeds with Vite. JavaScript is approximately 552 kB before compression, including Three.js and OrbitControls; CSS is approximately 16 kB. The complete `dist/` is approximately 1.2 MB including the provided logo and licenses.
 - Eleven Playwright browser groups pass against the local production build. See `tests/browser-results.json` for the executed test names.
 - Actual Three.js diagnostics verify twelve glass panes, selected-row opacity on four bays, separate blind position and slat angle, light colour/intensity/direction, camera changes and animated intermediate values. Tests use UI interactions; the diagnostics are read-only and opt-in via `?inspect`.
@@ -32,6 +32,14 @@ Testing used Linux, Node 20.20.2, Chromium 143 (Playwright Chromium build 1200),
 
 Package installation in the development environment initially stalled during npm extraction. Dependencies were obtained from their official npm archive URLs and checked against the lockfile integrity hashes. No system libraries were installed: Chromium's three missing test libraries were extracted under `/tmp`. These development workarounds are not required to run the included offline build.
 
-The lighting close-up recorded 91 render calls, including the outdoor scene. This is a rendering-complexity observation, not a hardware frame-rate measurement.
+Outdoor and indoor lights are isolated using two render passes with preserved depth. Render-call observations are recorded in `tests/presentation-results.json`; they are not hardware frame-rate measurements.
 
 The model is qualitative. Ambient fill keeps the scene interpretable; tint attenuation and indirect bounce are illustrative approximations. No optical-transmission, energy, measured lux or thermal claims are made. Historical communication roles are inherited from the supplied HTML and explicitly not verified live.
+
+## Lighting and blind visibility correction
+
+Fixed outdoor fill leaking into the room: camera layer membership alone does not isolate Three.js lights by mesh. Two depth-preserving render passes now separate indoor and outdoor light sets. Interior daylight also follows the scenario colour and intensity; lamp emitters and the indirect-light approximation have been adjusted to produce visible changes on room surfaces. No scenario device presets were changed.
+
+Partially lowered blinds now deploy with constant slat pitch and gather the remaining slats above them. Previously all 27 slats were compressed into the lowered section, causing several angles to overlap and look closed.
+
+`tests/lighting-visibility.mjs` samples rendered floor pixels with unchanged manual device settings across all six scenarios. It also checks direct and indirect lights on/off, warm/neutral surface colour, and daytime lamp visibility. These samples are 8-bit image brightness comparisons, not physical illuminance measurements. Comparison screenshots for every scenario and 0°/30°/45°/80° at 55% deployment are in `screenshots/visibility/`.

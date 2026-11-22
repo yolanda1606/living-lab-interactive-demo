@@ -85,9 +85,9 @@ The original CSS positions **four narrow EC bays on the left, a structural colum
 - `src/styles/main.css`: responsive, projector-oriented UI.
 - `serve.mjs`: dependency-free offline server.
 
-Device target labels update immediately; animated geometry reaches those targets smoothly. Changes are interruptible. Reduced-motion preferences remove transitions and cloud motion. The glass uses twelve independent transparent surfaces with depth writes disabled. The original illustrative opacity values are retained: 0.035 / 0.34 / 0.72. The two blind banks each use 27 instanced slats. Position controls their vertical spacing; angle rotates them around their horizontal axis.
+Device target labels update immediately; animated geometry reaches those targets smoothly. Changes are interruptible. Reduced-motion preferences remove transitions and cloud motion. The glass uses twelve independent transparent surfaces with depth writes disabled. The original illustrative opacity values are retained: 0.035 / 0.34 / 0.72. The two blind banks each use 27 instanced slats. Lowering deploys slats at a constant pitch; raising gathers the remaining slats at the headrail. Angle rotates the individual slats around their horizontal axes. Lower the blinds above 0% to observe the deployed slat angles.
 
-Daylight attenuation combines the animated glass and blind states illustratively. One directional shadow light, hemisphere fill, emissive fittings, downward/upward spotlights and indirect bounce lights create differences between weather, tint and artificial lighting. Outdoor illumination is on a separate rendering layer. Static geometry is merged by material; slats are instanced; pixel ratio is capped at 1.5. No postprocessing is used. Geometries, materials, textures, controls, resize observer and renderer are disposed on page exit.
+Daylight attenuation combines the animated glass and blind states illustratively. One directional shadow light, hemisphere fill, emissive fittings, downward/upward spotlights and indirect bounce lights create differences between weather, tint and artificial lighting. Outdoor and indoor illumination use separate render passes with shared depth. This matters because Three.js selects lights by camera layers, not mesh layers: a single pass would let outdoor fill also illuminate the room. Scenario daylight colours the interior fill, while direct lamps illuminate work surfaces and indirect lamps illuminate the ceiling and supply illustrative reflected light. Static geometry is merged by material; slats are instanced; pixel ratio is capped at 1.5. No postprocessing is used. Geometries, materials, textures, controls, resize observer and renderer are disposed on page exit.
 
 ### Scope and provenance
 
@@ -116,6 +116,7 @@ In another terminal, with Chromium installed for Playwright:
 ```bash
 npx playwright install chromium
 npm run test:browser
+npm run test:visibility
 # Supplemental fullscreen and presentation checks
 node tests/presentation.mjs
 ```
