@@ -80,7 +80,7 @@ try {
    await page.setViewportSize({width:390,height:844});await settle();assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));await page.screenshot({path:'screenshots/mobile.png',fullPage:true});
  });
  await check('Smooth transitions animate intermediate glass, blinds and lighting',async()=>{
-   await page.setViewportSize({width:1600,height:1000});await page.emulateMedia({reducedMotion:'no-preference'});await page.locator('[data-scenario="morning"]').click();await page.waitForTimeout(1800);await page.locator('[data-scenario="night"]').click();await page.waitForTimeout(150);let v=await scene();assert.ok(v.blindPosition>0&&v.blindPosition<100);await page.waitForFunction(()=>window.livingLab.scene().blindPosition>98);v=await scene();assert.ok(v.blindPosition>98);
+   await page.setViewportSize({width:1600,height:1000});await page.emulateMedia({reducedMotion:'no-preference'});await page.locator('[data-scenario="morning"]').click();await settle();await page.locator('[data-scenario="night"]').click();await page.waitForFunction(()=>{const v=window.livingLab.scene();return v.blindPosition>0&&v.blindPosition<100;});let v;await page.waitForFunction(()=>window.livingLab.scene().blindPosition>98);v=await scene();assert.ok(v.blindPosition>98);
  });
  await check('Production build has no external requests, missing assets or browser errors',async()=>{assert.deepEqual(external,[]);assert.deepEqual(failures,[]);assert.deepEqual(errors,[]);});
  const fallbackPage=await context.newPage();

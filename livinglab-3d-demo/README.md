@@ -46,6 +46,8 @@ German, School, Automatic and Sunrise are the startup settings. Choose one of si
 
 Drag the scene to orbit; scroll or pinch to zoom. Panning is disabled and the orbit is bounded to keep the room in view. The three camera buttons and camera reset restore useful views. Cutaway hides side walls and the main ceiling shell; a ceiling island remains to show indirect lighting. Turn cutaway off for a translucent shell.
 
+The office has two square desk groups: one beside the electrochromic glass and one beside the blinds. Each group consists of four rounded triangular desks facing inward, with individual monitors and chairs. Both groups are rotated 45° around their centres. Four seated people give the room scale. The elevated overview shows the desk arrangement; drag to inspect it from other angles.
+
 School uses the chain **Environment → Sensors → Controller → Smart Office** and four short explanation cards. Bachelor reveals the historical architecture, animated signal paths, device targets and protocol details. Both views read the same state. Select a diagram node for its explanation; open Details for the last eight simulated events. Events retain snapshots and are retranslated when language changes.
 
 | Key | Action |

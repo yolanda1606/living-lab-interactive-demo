@@ -5,7 +5,7 @@ The original HTML and original logo have no Git diff. All changes are contained 
 ## Executed checks
 
 - Nine Node regression tests pass (including two new blind-deployment geometry tests): verbatim comparison of all six original presets (including environment metadata); repeated automatic/manual entry; independent manual controls; automatic edit guards and input validation; immutable communication snapshots; education/language/reset behavior; bilingual dictionary-key parity.
-- Production build succeeds with Vite. JavaScript is approximately 552 kB before compression, including Three.js and OrbitControls; CSS is approximately 16 kB. The complete `dist/` is approximately 1.2 MB including the provided logo and licenses.
+- Production build succeeds with Vite. JavaScript is approximately 584 kB before compression, including Three.js and OrbitControls; CSS is approximately 16 kB. The complete `dist/` is approximately 1.2 MB including the provided logo and licenses.
 - Eleven Playwright browser groups pass against the local production build. See `tests/browser-results.json` for the executed test names.
 - Actual Three.js diagnostics verify twelve glass panes, selected-row opacity on four bays, separate blind position and slat angle, light colour/intensity/direction, camera changes and animated intermediate values. Tests use UI interactions; the diagnostics are read-only and opt-in via `?inspect`.
 - All six scenarios produce distinct rendered skies and correct device targets. Screenshot evidence includes Morning, Strong Sunshine and Night.
@@ -43,3 +43,9 @@ Fixed outdoor fill leaking into the room: camera layer membership alone does not
 Partially lowered blinds now deploy with constant slat pitch and gather the remaining slats above them. Previously all 27 slats were compressed into the lowered section, causing several angles to overlap and look closed.
 
 `tests/lighting-visibility.mjs` samples rendered floor pixels with unchanged manual device settings across all six scenarios. It also checks direct and indirect lights on/off, warm/neutral surface colour, and daytime lamp visibility. These samples are 8-bit image brightness comparisons, not physical illuminance measurements. Comparison screenshots for every scenario and 0°/30°/45°/80° at 55% deployment are in `screenshots/visibility/`.
+
+## Desk groups and occupants
+
+Replaced the three rectangular desks with two groups of four rounded triangular worktops: left beside the electrochromic glass, right beside the blinds. Each square group is rotated 45° around its centre, including its chairs, monitors and seated occupants. Four people are modelled locally. The overview camera is slightly higher to show the individual worktops. All furniture participates in the existing static geometry batching.
+
+The production build succeeds. The eleven browser control checks pass after the furniture replacement; the transition check now waits for a rendered intermediate state instead of a fixed 150 ms delay. Presentation checks and `screenshots/desk-groups.png` cover the final 45° arrangement. The offline archive contains the rebuilt application.

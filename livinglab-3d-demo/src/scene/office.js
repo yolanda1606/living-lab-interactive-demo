@@ -41,7 +41,7 @@ export function createOffice(host, initial, onCameraInteraction) {
   controls.minAzimuthAngle = -.95;
   controls.maxAzimuthAngle = .95;
   const presets = {
-    overview: { position: [6, 4.5, 10.2], target: [0, .95, -.5] },
+    overview: { position: [6, 5.6, 10.2], target: [0, .95, -.5] },
     windows: { position: [0, 2.6, 5.7], target: [0, 1.95, -3.4] },
     lighting: { position: [3.8, 2.2, 4.8], target: [0, 2.8, -.1] }
   };
@@ -113,24 +113,92 @@ export function createOffice(host, initial, onCameraInteraction) {
     const cords = [-.85, .85].map(dx => box(frame, x + dx, 2, -3.26, .008, 2.2, .008));
     blinds.push({ x, slats, rail, cords });
   }
-  function desk(x, z) {
-    box(oak, x, .77, z, 2.3, .07, 1.15);
-    for (const dx of [-.96, .96]) { box(white, x + dx, .37, z, .055, .74, .75); box(frame, x + dx, .035, z, .12, .04, .84); }
-    box(frame, x, .63, z, 1.95, .06, .06);
-    box(dark, x, 1.18, z - .24, .84, .49, .055);
-    box(mat('#46616c', { emissive: '#223540', emissiveIntensity: .16 }), x, 1.18, z - .207, .76, .41, .007);
-    box(frame, x, .91, z - .24, .045, .24, .045); box(frame, x, .82, z - .24, .36, .035, .2);
-    box(dark, x, .819, z + .24, .58, .025, .18);
-    box(white, x + .76, .82, z + .22, .27, .016, .35);
-    mesh(cylinderGeometry, white, x - .8, .88, z + .18, .07, .17, .07);
-    const chair = new T.Group(); chair.position.set(x, 0, z + 1.02); scene.add(chair);
+  // Four rounded triangular worktops meet at their tips to form each square island.
+  // Shape coordinates use -Z as Y before rotating the extrusion onto the floor plane.
+  const triangle = new T.Shape();
+  triangle.moveTo(-.96, -1.25);
+  triangle.lineTo(.96, -1.25);
+  triangle.quadraticCurveTo(1.25, -1.25, 1.045, -1.045);
+  triangle.lineTo(.14, -.14);
+  triangle.quadraticCurveTo(0, 0, -.14, -.14);
+  triangle.lineTo(-1.045, -1.045);
+  triangle.quadraticCurveTo(-1.25, -1.25, -.96, -1.25);
+  const desktopGeometry = geo(new T.ExtrudeGeometry(triangle, {
+    depth: .055, bevelEnabled: true, bevelSize: .012, bevelThickness: .008,
+    bevelSegments: 2, steps: 1, curveSegments: 10
+  }));
+  desktopGeometry.rotateX(-Math.PI / 2);
+  // Extrusions are non-indexed; match the indexed primitives for static batching.
+  desktopGeometry.setIndex(Array.from({ length: desktopGeometry.attributes.position.count }, (_, i) => i));
+  const screenMaterial = mat('#46616c', { emissive: '#223540', emissiveIntensity: .16 });
+  const trousers = mat('#34414c'), shoes = mat('#252c31');
+  const occupants = [
+    { skin: mat('#c98e68'), shirt: mat('#9c6246'), hair: mat('#382b28'), bun: true },
+    { skin: mat('#e0b597'), shirt: mat('#456e83'), hair: mat('#72503b') },
+    { skin: mat('#875c43'), shirt: mat('#d1b77c'), hair: mat('#292727') },
+    { skin: mat('#cba080'), shirt: mat('#67877c'), hair: mat('#44362e'), bun: true }
+  ];
+  function seatedPerson(chair, person) {
+    // Rounded limbs follow the seated pose; hands rest at keyboard height.
+    const limb = (material, from, to, radius) => {
+      const start = new T.Vector3(...from), end = new T.Vector3(...to);
+      const center = start.clone().add(end).multiplyScalar(.5);
+      const segment = mesh(cylinderGeometry, material, center.x, center.y, center.z,
+        radius, start.distanceTo(end), radius, chair);
+      segment.quaternion.setFromUnitVectors(new T.Vector3(0, 1, 0), end.sub(start).normalize());
+      for (const point of [from, to]) mesh(sphereGeometry, material, ...point, radius, radius, radius, chair);
+    };
+    mesh(sphereGeometry, trousers, 0, .59, .015, .20, .10, .18, chair);
+    const torso = mesh(sphereGeometry, person.shirt, 0, .91, -.015, .225, .31, .135, chair);
+    torso.rotation.x = -.08;
+    mesh(cylinderGeometry, person.skin, 0, 1.20, -.035, .055, .12, .055, chair);
+    mesh(sphereGeometry, person.skin, 0, 1.35, -.05, .105, .14, .105, chair);
+    mesh(sphereGeometry, person.skin, 0, 1.34, -.155, .025, .033, .028, chair);
+    const hairGeometry = geo(new T.SphereGeometry(1, 16, 10, 0, Math.PI * 2, 0, 1.75));
+    mesh(hairGeometry, person.hair, 0, 1.37, -.04, .111, .13, .109, chair);
+    if (person.bun) mesh(sphereGeometry, person.hair, 0, 1.39, .075, .065, .065, .06, chair);
+    for (const side of [-1, 1]) {
+      const hipX = side * .12, shoulderX = side * .20;
+      limb(trousers, [hipX, .58, -.04], [hipX, .53, -.35], .085);
+      limb(trousers, [hipX, .53, -.35], [hipX, .14, -.39], .061);
+      mesh(sphereGeometry, shoes, hipX, .095, -.46, .075, .06, .15, chair);
+      limb(person.shirt, [shoulderX, 1.08, -.015], [side * .25, .84, -.22], .067);
+      limb(person.skin, [side * .25, .84, -.22], [side * .16, .84, -.57], .043);
+      mesh(sphereGeometry, person.skin, side * .16, .839, -.62, .05, .025, .075, chair);
+    }
+  }
+  function workstation(cluster, rotation, person) {
+    const desk = new T.Group(); desk.rotation.y = rotation; cluster.add(desk);
+    // Small gaps keep all four individual triangular outlines legible.
+    mesh(desktopGeometry, oak, 0, .742, .04, 1, 1, 1, desk);
+    for (const [x, z] of [[-.98, 1.12], [.98, 1.12], [0, .23]]) {
+      mesh(cylinderGeometry, white, x, .38, z, .035, .72, .035, desk);
+      mesh(cylinderGeometry, frame, x, .035, z, .055, .035, .055, desk);
+    }
+    box(dark, 0, 1.13, .64, .66, .41, .045, desk);
+    box(screenMaterial, 0, 1.13, .666, .60, .35, .008, desk);
+    box(frame, 0, .89, .64, .035, .18, .035, desk);
+    box(frame, 0, .813, .64, .28, .025, .17, desk);
+    box(dark, 0, .819, 1.07, .48, .025, .16, desk);
+    mesh(sphereGeometry, dark, .34, .827, 1.07, .035, .022, .055, desk);
+    const notebook = box(white, -.64, .814, 1.02, .25, .014, .30, desk); notebook.rotation.y = -.12;
+    mesh(cylinderGeometry, white, .66, .866, 1.03, .055, .13, .055, desk);
+    const chair = new T.Group(); chair.position.set(0, 0, 1.75); desk.add(chair);
     box(chairFabric, 0, .48, 0, .54, .09, .52, chair);
     const back = box(chairFabric, 0, .84, .23, .53, .65, .065, chair); back.rotation.x = -.09;
     mesh(cylinderGeometry, frame, 0, .25, 0, .035, .4, .035, chair);
-    for (let i = 0; i < 5; i++) { const arm = box(frame, 0, .075, 0, .62, .035, .035, chair); arm.rotation.y = i * Math.PI / 5; }
+    for (let i = 0; i < 5; i++) {
+      const spoke = new T.Group(); spoke.rotation.y = i * Math.PI * 2 / 5; chair.add(spoke);
+      box(frame, 0, .075, .14, .035, .035, .28, spoke);
+      mesh(sphereGeometry, dark, 0, .055, .28, .045, .035, .035, spoke);
+    }
     for (const dx of [-.32, .32]) box(frame, dx, .65, 0, .05, .035, .3, chair);
+    if (person) seatedPerson(chair, person);
   }
-  desk(-3.35, -1.05); desk(.0, -.8); desk(3.35, -1.05);
+  for (const [x, people] of [[-2.9, [occupants[0], null, null, occupants[1]]], [2.9, [null, occupants[2], occupants[3], null]]]) {
+    const cluster = new T.Group(); cluster.position.set(x, 0, -.4); cluster.rotation.y = Math.PI / 4; scene.add(cluster);
+    for (let side = 0; side < 4; side++) workstation(cluster, side * Math.PI / 2, people[side]);
+  }
   // Storage, books and planting give scale without expensive external models.
   box(white, -5.35, .57, 1.72, 1.05, 1.12, 1.85);
   for (const z of [1.13, 1.72, 2.31]) { box(concrete, -4.81, .57, z, .015, 1.04, .56); box(frame, -4.79, .69, z, .02, .035, .16); }

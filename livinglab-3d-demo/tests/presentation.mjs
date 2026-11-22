@@ -6,6 +6,7 @@ const page=await browser.newPage({viewport:{width:1600,height:1000},reducedMotio
 const errors=[];page.on('pageerror',e=>errors.push(e.message));
 try {
  await page.goto('http://127.0.0.1:4173/?inspect');await page.waitForFunction(()=>window.livingLab?.scene());
+ await page.locator('[data-scenario="morning"]').click();await page.waitForTimeout(600);await page.locator('#viewport').screenshot({path:'screenshots/desk-groups.png'});
  await page.locator('#fullscreen').click();await page.waitForFunction(()=>!!document.fullscreenElement);await page.evaluate(()=>document.exitFullscreen());
  await page.locator('#manualMode').click();
  for(const [row,tint] of ['low','medium','high'].entries()) await page.locator(`[data-row="${row}"][data-tint="${tint}"]`).click();
