@@ -1,0 +1,18 @@
+{
+  "passed": [
+    "All six scenarios: exact state targets and distinct rendered sky / lights",
+    "Manual tint affects only the selected row, across four independent panes",
+    "Blind position and all four angles are independent",
+    "Brightness, colour and direct / indirect lighting drive actual Three.js lights",
+    "Manual weather retains targets; return to auto and re-enter manual without stale values",
+    "Bilingual interface and historical communication share device state",
+    "All camera presets, orbit and reset change and restore camera",
+    "Original shortcuts, help, reset and projector / mobile layouts",
+    "Smooth transitions animate intermediate glass, blinds and lighting",
+    "Production build has no external requests, missing assets or browser errors",
+    "Unavailable WebGL gives a bilingual fallback while controls remain usable"
+  ],
+  "externalRequests": [],
+  "errors": [],
+  "failedRequests": []
+}

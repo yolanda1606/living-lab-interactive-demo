@@ -1,0 +1,125 @@
+# Living Lab · Smart Office 3D
+
+An offline, bilingual Three.js teaching simulator for RPTU university visits. The original `../LivingLab_Interactive_Demo_v2.html` and its logo are unchanged. This separate version preserves all six scenario presets, shared glass-row controls, blinds, lighting, keyboard controls and simulated communication.
+
+## Present the included build — no installation or internet needed
+
+The complete browser application is in `dist/`. A portable copy is also provided as `livinglab-3d-demo-offline.zip`; extract it before launching. It includes Three.js, OrbitControls, JavaScript, CSS and the local logo. No CDN, fonts, texture downloads, telemetry or real-device API calls are used. A small local HTTP server is needed because browsers restrict JavaScript modules opened using `file://`.
+
+Have Node.js 20.19+ (or Python 3) installed on the presentation computer before going offline. You do **not** need `npm install` to present the included build.
+
+### Windows
+
+Double-click `start-windows.cmd`, then open **http://127.0.0.1:4173** in Edge, Chrome or Firefox. Keep the terminal open during the presentation; Ctrl+C stops the server.
+
+Or use PowerShell from this folder:
+
+```powershell
+node serve.mjs
+```
+
+Python alternative:
+
+```powershell
+py -m http.server 4173 --bind 127.0.0.1 --directory dist
+```
+
+### WSL / Linux
+
+```bash
+cd /path/to/livinglab-3d-demo
+./start-wsl.sh
+```
+
+Open **http://localhost:4173** in the Windows browser. Standard WSL localhost forwarding must be enabled. Alternatively copy this folder to Windows and use the Windows launcher.
+
+```bash
+# Python alternative
+python3 -m http.server 4173 --bind 127.0.0.1 --directory dist
+```
+
+Both server options serve only local files. The bundled Node server binds to loopback, not the campus network. Use browser fullscreen (F11) or the Fullscreen button. Desktop controls adapt to a 1280 × 720 projector; education and communication details continue below the main demonstration.
+
+## Use the demo
+
+German, School, Automatic and Sunrise are the startup settings. Choose one of six weather scenarios. Automatic applies the original device preset. Manual copies the **current** automatic settings every time you enter it, then lets you change three tint rows, blind position, slat angle, brightness, colour and light direction independently. Changing weather in Manual keeps your settings. Returning to Automatic restores the selected scenario.
+
+Drag the scene to orbit; scroll or pinch to zoom. Panning is disabled and the orbit is bounded to keep the room in view. The three camera buttons and camera reset restore useful views. Cutaway hides side walls and the main ceiling shell; a ceiling island remains to show indirect lighting. Turn cutaway off for a translucent shell.
+
+School uses the chain **Environment → Sensors → Controller → Smart Office** and four short explanation cards. Bachelor reveals the historical architecture, animated signal paths, device targets and protocol details. Both views read the same state. Select a diagram node for its explanation; open Details for the last eight simulated events. Events retain snapshots and are retranslated when language changes.
+
+| Key | Action |
+| --- | --- |
+| 1 / 2 / 3 | Strong Sunshine / Cloudy / Night (original mapping) |
+| 4 / 5 / 6 | Enter Manual and focus top / middle / bottom tint row |
+| M / 0 | Manual / Automatic |
+| R | Reset camera |
+| F / F11 | App fullscreen / browser fullscreen |
+| ? / Escape | Open / close help |
+
+Shortcuts do not hijack text, range or select input. Reset Demo restores startup language, mode, scenario, education level, camera and cutaway.
+
+## Preserved presets
+
+Tint order is top / middle / bottom. Position 0% means raised; 100% means lowered. The numbers below are original educational presets, not measurements.
+
+| Scenario | Tint rows | Blinds | Slats | Light | Colour | Direction |
+| --- | --- | ---: | ---: | ---: | --- | --- |
+| Sunrise | high / medium / low | 0% | 0° | 30% | warm | indirect |
+| Morning | low / low / low | 0% | 0° | 0% | neutral | direct |
+| Strong Sunshine | high / high / high | 55% | 80° | 10% | neutral | indirect |
+| Cloudy | low / low / low | 0% | 0° | 45% | neutral | direct |
+| Sunset | medium / low / low | 25% | 30° | 55% | warm | indirect |
+| Night | low / low / low | 100% | 80° | 70% | warm | indirect |
+
+The original CSS positions **four narrow EC bays on the left, a structural column in the middle, and two wider blind bays on the right**, with the two banks occupying approximately equal widths. That rendered arrangement is preserved even though an old HTML comment describes the reverse order.
+
+## Architecture
+
+- `src/simulation/scenarios.js`: original scenario objects, copied verbatim, including original 2D environment metadata for provenance. No preset values changed.
+- `src/simulation/state.js`: one store and one `devices(state)` selector. Automatic reads preset targets; Manual reads copied editable targets. Events store snapshots. Education, language, camera and cutaway selections live here too.
+- `src/ui/copy.js`: original German/English dictionary plus 3D, education, accessibility and help text.
+- `src/ui/interface.js`: controls, original communication paths/explanations adapted to the store, event log, keyboard and fullscreen. No separate device state.
+- `src/scene/office.js`: geometry, materials, outdoor environment, lighting, OrbitControls, resize, animation and resource disposal. It subscribes to the store and only interpolates visual values toward its targets. It never changes simulation state.
+- `src/main.js`: initialization, WebGL fallback and subscriptions.
+- `src/styles/main.css`: responsive, projector-oriented UI.
+- `serve.mjs`: dependency-free offline server.
+
+Device target labels update immediately; animated geometry reaches those targets smoothly. Changes are interruptible. Reduced-motion preferences remove transitions and cloud motion. The glass uses twelve independent transparent surfaces with depth writes disabled. The original illustrative opacity values are retained: 0.035 / 0.34 / 0.72. The two blind banks each use 27 instanced slats. Position controls their vertical spacing; angle rotates them around their horizontal axis.
+
+Daylight attenuation combines the animated glass and blind states illustratively. One directional shadow light, hemisphere fill, emissive fittings, downward/upward spotlights and indirect bounce lights create differences between weather, tint and artificial lighting. Outdoor illumination is on a separate rendering layer. Static geometry is merged by material; slats are instanced; pixel ratio is capped at 1.5. No postprocessing is used. Geometries, materials, textures, controls, resize observer and renderer are disposed on page exit.
+
+### Scope and provenance
+
+The office dimensions and furnishings are conceptual, **not a surveyed digital twin**. Tint opacity is an illustration, **not SageGlass optical-transmission data**. Light intensity and attenuation are art direction, not calibrated lux, thermal performance or energy predictions. Slat obstruction is qualitative. No live sensing or protocols are implemented.
+
+Historical hardware and relationships are carried forward from the supplied simulator: WAGO 750-831, Raspberry Pi with CODESYS 3.5, deCONZ/Phoscon and ZigBee, BACnet for glass, SMI for blinds, and the supporting Bachmann/LiSA MPC and Modbus TCP relationship. They are labeled historically documented and simulated; this migration does not independently verify today's installation.
+
+Three.js integration follows its [renderer documentation](https://threejs.org/docs/#api/en/renderers/WebGLRenderer) and [OrbitControls documentation](https://threejs.org/docs/#examples/en/controls/OrbitControls). These links are developer references, not runtime dependencies. The original supplied logo is copied locally and hidden gracefully if unavailable. Wood grain is generated locally; other materials do not require textures.
+
+## Develop and verify
+
+Install dependencies once while online:
+
+```bash
+npm ci
+npm run dev
+npm test
+npm run build
+npm start
+```
+
+The build is reproducible from `package-lock.json`; `dist/` is included so the presentation machine needs no package manager or internet. Development dependencies are not needed by the production server.
+
+In another terminal, with Chromium installed for Playwright:
+
+```bash
+npx playwright install chromium
+npm run test:browser
+# Supplemental fullscreen and presentation checks
+node tests/presentation.mjs
+```
+
+For an existing Chromium installation set `CHROMIUM_PATH` to its executable. Set `DEMO_URL` to test another local server. The browser test blocks every nonlocal request before navigation, exercises actual UI interactions and inspects the rendered Three.js objects via the opt-in read-only `?inspect` diagnostics. It captures Morning, Strong Sunshine, Night, a 1280×720 projector view, and a mobile view into `screenshots/`.
+
+See `VERIFICATION.md` and `tests/browser-results.json` for executed checks and limitations. If WebGL 2 is unavailable, a translated message replaces the scene and the simulation controls continue working. The browser should have hardware acceleration enabled; a final rehearsal on the actual projector/laptop is recommended.
