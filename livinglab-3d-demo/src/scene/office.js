@@ -1,3 +1,5 @@
+import { physicalForNode } from '../presentation/model.js';
+import { CameraTourController } from './camera-tour-controller.js';
 import * as T from 'three';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
@@ -13,7 +15,7 @@ export const environments = {
   sunset: { sky: '#b38c9c', sun: [10, 3.5, -14], color: '#ffb782', direct: 1.6, diffuse: .38, clouds: .3 },
   night: { sky: '#14263e', sun: [-7, 11, -22], color: '#b8d6ff', direct: .035, diffuse: .07, clouds: .15 }
 };
-export function createOffice(host, initial, onCameraInteraction) {
+export function createOffice(host, initial, onCameraInteraction, onComponentSelect) {
   const renderer = new T.WebGLRenderer({ antialias: true, alpha: false, powerPreference: 'high-performance' });
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
   renderer.shadowMap.enabled = true;
@@ -40,18 +42,9 @@ export function createOffice(host, initial, onCameraInteraction) {
   // Stay in front of the facade; cutaway walls make all permitted views readable.
   controls.minAzimuthAngle = -.95;
   controls.maxAzimuthAngle = .95;
-  const presets = {
-    overview: { position: [6, 5.6, 10.2], target: [0, .95, -.5] },
-    windows: { position: [0, 2.6, 5.7], target: [0, 1.95, -3.4] },
-    lighting: { position: [3.8, 2.2, 4.8], target: [0, 2.8, -.1] }
-  };
-  let transition = null;
-  function setCamera(name, immediate = false) {
-    const p = presets[name];
-    if (immediate) { camera.position.fromArray(p.position); controls.target.fromArray(p.target); controls.update(); }
-    else transition = { from: camera.position.clone(), targetFrom: controls.target.clone(), to: new T.Vector3(...p.position), targetTo: new T.Vector3(...p.target), elapsed: 0 };
-  }
-  controls.addEventListener('start', () => { transition = null; onCameraInteraction?.(); });
+  const cameraTour = new CameraTourController(camera, controls);
+  const setCamera = (name, immediate = false) => { controls.maxPolarAngle = name === 'lighting' ? Math.PI * .65 : Math.PI / 2 - .025; cameraTour.move(name, immediate); };
+  controls.addEventListener('start', () => { cameraTour.cancel(); onCameraInteraction?.(); });
   setCamera('overview', true);
 
   const materials = new Set(), geometries = new Set(), textures = new Set();
@@ -284,6 +277,43 @@ export function createOffice(host, initial, onCameraInteraction) {
     objects.forEach(o => o.removeFromParent()); scene.add(merged);
   });
 
+  // Schematic environmental-input marker: no claimed sensor make or mounting location.
+  const sensorMat = mat('#dce9ed', { emissive: '#527c8c', emissiveIntensity: .25 });
+  const sensorMarker = mesh(sphereGeometry, sensorMat, .3, 3.85, -3.4, .13, .13, .13);
+  sensorMarker.castShadow = false;
+  const pickMaterial = new T.MeshBasicMaterial({ transparent: true, opacity: 0, depthWrite: false }); materials.add(pickMaterial);
+  const outlineMaterial = new T.LineBasicMaterial({ color: '#528b9e', transparent: true, opacity: .9, depthTest: false }); materials.add(outlineMaterial);
+  const edgeGeometry = geo(new T.EdgesGeometry(boxGeometry));
+  const sunlightArrow = new T.ArrowHelper(new T.Vector3(0, -1, 0), new T.Vector3(-5, 4.35, -2.2), 1.1, '#b8874e', .18, .1); scene.add(sunlightArrow);
+  for (const part of [sunlightArrow.line, sunlightArrow.cone]) { materials.add(part.material); geometries.add(part.geometry); }
+  const pickObjects = [], highlightGroups = new Map();
+  function componentVolume(key, position, size) {
+    const proxy = mesh(boxGeometry, pickMaterial, ...position, ...size); proxy.castShadow = false; proxy.userData.component = key; pickObjects.push(proxy);
+    if (!highlightGroups.has(key)) { const group = new T.Group(); group.visible = false; scene.add(group); highlightGroups.set(key, group); }
+    const outline = new T.LineSegments(edgeGeometry, outlineMaterial); outline.position.fromArray(position); outline.scale.fromArray(size); outline.renderOrder = 8;
+    highlightGroups.get(key).add(outline);
+  }
+  componentVolume('glass', [-3.04, 1.95, -3.39], [5.6, 2.38, .16]);
+  componentVolume('blinds', [2.96, 1.95, -3.24], [5.5, 2.38, .22]);
+  for (const x of [-3.3, 0, 3.3]) componentVolume('lighting', [x, 2.78, -.65], [2.24, .16, .28]);
+  componentVolume('sensors', [.3, 3.85, -3.4], [.4, .4, .4]);
+  const raycaster = new T.Raycaster(), pointer = new T.Vector2();
+  let pointerStart = null;
+  const pointerDown = e => { if (!e.isPrimary) { pointerStart = null; return; } if (e.button === 0) pointerStart = [e.clientX, e.clientY]; };
+  const pointerCancel = () => { pointerStart = null; };
+  const pointerUp = e => {
+    if (!pointerStart || Math.hypot(e.clientX - pointerStart[0], e.clientY - pointerStart[1]) > 6) { pointerStart = null; return; }
+    pointerStart = null;
+    const rect = renderer.domElement.getBoundingClientRect();
+    pointer.set((e.clientX - rect.left) / rect.width * 2 - 1, -(e.clientY - rect.top) / rect.height * 2 + 1);
+    raycaster.setFromCamera(pointer, camera);
+    const hit = raycaster.intersectObjects(pickObjects, false)[0];
+    if (hit) onComponentSelect?.(hit.object.userData.component);
+  };
+  renderer.domElement.addEventListener('pointerdown', pointerDown);
+  renderer.domElement.addEventListener('pointerup', pointerUp);
+  renderer.domElement.addEventListener('pointercancel', pointerCancel);
+
   let state = initial, target = devices(state), running = true, last = performance.now(), raf;
   let position = target.blindPosition, angle = target.slatAngle, brightness = target.lampBrightness / 100, direction = target.lampDirection === 'direct' ? 1 : 0;
   const tempColor = new T.Color(), skyColor = new T.Color(), lightColor = new T.Color();
@@ -291,8 +321,11 @@ export function createOffice(host, initial, onCameraInteraction) {
   const reduced = matchMedia('(prefers-reduced-motion: reduce)');
   function update(next, action = {}) {
     state = next; target = devices(next);
-    if (action.type === 'camera' || action.type === 'reset') setCamera(next.camera, reduced.matches);
+    if (['camera', 'reset', 'inspect', 'reveal', 'architecture-node', 'tour-start', 'tour-step', 'tour-exit'].includes(action.type)) setCamera(next.camera, reduced.matches);
+    highlightGroups.forEach((group, key) => { group.visible = key === physicalForNode(next.component); });
     cutSurfaces.forEach(o => { o.visible = !next.cutaway; });
+    renderer.domElement.tabIndex = next.view === 'automation' ? -1 : 0;
+    renderer.domElement.setAttribute('aria-hidden', String(next.view === 'automation'));
   }
   update(initial);
   const resize = new ResizeObserver(() => {
@@ -336,14 +369,7 @@ export function createOffice(host, initial, onCameraInteraction) {
     const dt = Math.min((now - last) / 1000, .15); last = now;
     if (document.hidden) return;
     const a = reduced.matches ? 1 : 1 - Math.exp(-dt * 3.3), env = environments[state.scenario];
-    if (transition) {
-      transition.elapsed += dt; const f = Math.min(1, transition.elapsed / 1.1), s = f * f * (3 - 2 * f);
-      camera.position.lerpVectors(transition.from, transition.to, s); controls.target.lerpVectors(transition.targetFrom, transition.targetTo, s);
-      if (f === 1) transition = null;
-    }
-    controls.update();
-    // Camera always stays above the floor and on the room side of the glass facade.
-    camera.position.y = Math.max(.45, camera.position.y); camera.position.z = Math.max(-2.8, camera.position.z);
+    if (!cameraTour.update(dt, reduced.matches)) { controls.update(); cameraTour.constrain(); }
     let transmission = 0;
     panes.forEach(p => { const opacity = TINT_OPACITY[target.tints[p.userData.row]]; p.material.opacity = T.MathUtils.lerp(p.material.opacity, opacity, a); tempColor.set(target.tints[p.userData.row] === 'high' ? '#204c78' : '#7b9daa'); p.material.color.lerp(tempColor, a); transmission += 1 - p.material.opacity; });
     transmission /= panes.length;
@@ -357,6 +383,8 @@ export function createOffice(host, initial, onCameraInteraction) {
     const blindOpen = 1 - position / 100 * (.12 + .85 * Math.sin(T.MathUtils.degToRad(angle)));
     const entry = (transmission + blindOpen) / 2;
     skyColor.set(env.sky); scene.background.lerp(skyColor, a); scene.fog.color.copy(scene.background);
+    sunlightArrow.visible = state.scenario !== 'night' && state.view === 'office';
+    sunlightArrow.setDirection(new T.Vector3(...env.sun).negate().normalize());
     sun.position.lerp(new T.Vector3(...env.sun), a); lightColor.set(env.color); sun.color.lerp(lightColor, a);
     sun.intensity = T.MathUtils.lerp(sun.intensity, env.direct * entry, a);
     // Daylight fill is coloured by the environment, and becomes very small at night.
@@ -383,7 +411,8 @@ export function createOffice(host, initial, onCameraInteraction) {
   renderer.domElement.addEventListener('webglcontextlost', contextLost);
   return {
     update, setCamera, captureIllumination,
-    diagnostics: () => ({ panes: panes.map(p => ({ ...p.userData, opacity: p.material.opacity })), blindPosition: position, slatAngle: angle, slatDrops: Array.from({ length: SLAT_COUNT }, (_, i) => slatDrop(i, position)), brightness, direction, sun: sun.intensity, sky: scene.background.getHexString(), camera: camera.position.toArray(), lights: lamps.map(l => ({ down: l.down.intensity, up: l.up.intensity, color: l.down.color.getHexString() })), calls: renderer.info.render.calls }),
-    dispose() { running = false; cancelAnimationFrame(raf); resize.disconnect(); controls.dispose(); geometries.forEach(g => g.dispose()); materials.forEach(m => m.dispose()); textures.forEach(t => t.dispose()); renderer.dispose(); renderer.domElement.remove(); }
+    diagnostics: () => ({ panes: panes.map(p => ({ ...p.userData, opacity: p.material.opacity })), blindPosition: position, slatAngle: angle, slatDrops: Array.from({ length: SLAT_COUNT }, (_, i) => slatDrop(i, position)), brightness, direction, sun: sun.intensity, sky: scene.background.getHexString(), camera: camera.position.toArray(), lights: lamps.map(l => ({ down: l.down.intensity, up: l.up.intensity, color: l.down.color.getHexString() })), calls: renderer.info.render.calls, transitioning: !!cameraTour.transition, cameraTarget: controls.target.toArray(), selectedComponent: state.component, highlightedComponents: [...highlightGroups].filter(([, group]) => group.visible).map(([key]) => key),
+      pickTargets: pickObjects.map(o => { const p = o.position.clone().project(camera); return { component: o.userData.component, x: (p.x + 1) / 2, y: (1 - p.y) / 2 }; }) }),
+    dispose() { running = false; cancelAnimationFrame(raf); resize.disconnect(); renderer.domElement.removeEventListener('pointerdown', pointerDown); renderer.domElement.removeEventListener('pointerup', pointerUp); renderer.domElement.removeEventListener('pointercancel', pointerCancel); controls.dispose(); geometries.forEach(g => g.dispose()); materials.forEach(m => m.dispose()); textures.forEach(t => t.dispose()); renderer.dispose(); renderer.domElement.remove(); }
   };
 }

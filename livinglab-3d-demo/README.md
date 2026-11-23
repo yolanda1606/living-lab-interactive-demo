@@ -48,7 +48,7 @@ The selected Automatic/Manual mode has a teal background and check mark. Each sy
 
 System selection persists across weather and mode changes. Excluded manual controls are disabled; their saved settings return when reactivated. Entering Manual copies the current scenario settings, including saved targets for excluded systems. Reset Demo enables all three systems. The technical diagram and event history show the effective targets and active-system selection.
 
-Drag the scene to orbit; scroll or pinch to zoom. Panning is disabled and the orbit is bounded to keep the room in view. The three camera buttons and camera reset restore useful views. Cutaway hides side walls and the main ceiling shell; a ceiling island remains to show indirect lighting. Turn cutaway off for a translucent shell.
+Drag the scene to orbit; scroll or pinch to zoom. Panning is disabled and the orbit is bounded to keep the room in view. The camera presets and Reset View restore useful views. Cutaway hides side walls and the main ceiling shell; a ceiling island remains to show indirect lighting. Turn cutaway off for a translucent shell.
 
 The office has two square desk groups: one beside the electrochromic glass and one beside the blinds. Each group consists of four rounded triangular desks facing inward, with individual monitors and chairs. Both groups are rotated 45° around their centres. Four seated people give the room scale. The elevated overview shows the desk arrangement; drag to inspect it from other angles.
 
@@ -64,6 +64,33 @@ The demo always presents the Bachelor-level technical view: historical architect
 | ? / Escape | Open / close help |
 
 Shortcuts do not hijack text, range or select input. Reset Demo restores startup language, mode, scenario, camera and cutaway.
+
+## Interactive engineering tour
+
+Use **Start Guided Tour** in the header for an eight-step, presenter-controlled route: office → environmental inputs → electrochromic glazing → blinds → lighting → central controller → complete architecture → office. **Previous**, **Next** and **Exit tour** are explicit controls; the tour never advances automatically. You can pause to orbit, change the weather or demonstrate a device at any step. Navigating, entering or exiting the tour preserves device settings, system selections and the event history. Reset Demo retains its original full-reset meaning.
+
+The presentation toolbar below the room connects three perspectives:
+
+- **Explore the Office** returns to the architectural overview. The muted orange arrow indicates illustrative incoming sunlight direction during daytime.
+- **Inspect a Component** moves to a close-up. Select SageGlass, blinds, lighting or environmental inputs from the menu, or click the component directly in the model. A thin outline identifies the selection. The information panel below the scene provides expandable **Principle** and **Engineering** explanations. The corresponding existing controls are outlined; **Go to component controls** focuses the mode selector or relevant control without silently changing device settings.
+- **Reveal the Automation** moves the camera toward an overall context view and fades in an interactive technical diagram within the same viewport. It shows current targets, the selected path and short-lived simulated command flows. Clicking an actuator or environmental node returns to its 3D inspection. Controller and integration nodes open their engineering explanations. Raspberry Pi and deCONZ also provide an **Inspect in the room** link to the associated lighting system.
+
+The diagram represents Environment/sensors, WAGO 750-831, BACnet/SageGlass, SMI/blinds, the historical Modbus TCP → Raspberry Pi/CODESYS 3.5 → REST/HTTP → deCONZ/Phoscon → ZigBee → luminaires path, and the historical Bachmann/LiSA MPC relationship. The MPC link is dotted and non-directional: it is not a claim of current operation or an executing predictive controller. No LiSA Voting App-to-PLC path has been added.
+
+The supplied source names daylight, solar irradiation and wind as environmental input categories. It does **not** identify sensor models or mounting positions. The new 3D environmental marker is explicitly schematic; no sensor readings, measured lux, transmission percentages or wind values are invented. Wind is not numerically simulated. All explanatory text is available in German and English.
+
+On small screens, the architecture is scrollable within its own panel so labels remain readable. All controls and information remain available further down the page. Reduced-motion preferences use immediate camera placement and disable animated flows. The architecture remains navigable even if WebGL is unavailable; physical inspection still requires WebGL.
+
+### Camera and tour architecture
+
+- `src/presentation/model.js` contains named camera targets, the eight tour steps and physical/architecture associations.
+- `src/scene/camera-tour-controller.js` exports the reusable `CameraTourController` and route generator. Positions and look-at targets interpolate independently. Routes pass through the open front corridor before entering a close-up, keeping entry above furniture and below fittings. Orbit cancels an in-progress route. Interior orbit constraints keep the camera clear of furniture, the facade and ceiling; sensor inspection stays above the roof.
+- The existing store owns `view`, `component`, `tourStep` and `camera` alongside the unchanged device state. Presentation actions do not append device events or reset targets. Scene, existing controls, event log and new architecture all read this same store.
+- `src/scene/office.js` adds non-rendering pick volumes and separately managed selection outlines after static geometry batching. Direct clicks dispatch inspection through the store. No duplicate physical scene is created.
+- `src/presentation/interface.js` builds the connected toolbar, information panel, tour navigation and responsive HTML/SVG architecture overlay. It renders effective device targets through the existing `devices(state)` selector. Only branches affected by a command animate; excluded systems remain identified as off.
+- `src/presentation/copy.js` supplies the bilingual engineering content. Historical and schematic associations are labeled explicitly.
+
+These additions change presentation and camera navigation, not scenario values, optical assumptions, light intensities or control algorithms. The light-view camera may now look upward toward the luminaires instead of being forced above its target by the former orbit-angle limit.
 
 ## Preserved presets
 
@@ -123,10 +150,15 @@ In another terminal, with Chromium installed for Playwright:
 npx playwright install chromium
 npm run test:browser
 npm run test:visibility
+npm run test:tour
 # Supplemental fullscreen and presentation checks
 node tests/presentation.mjs
 ```
 
 For an existing Chromium installation set `CHROMIUM_PATH` to its executable. Set `DEMO_URL` to test another local server. The browser test blocks every nonlocal request before navigation, exercises actual UI interactions and inspects the rendered Three.js objects via the opt-in read-only `?inspect` diagnostics. It captures Morning, Strong Sunshine, Night, a 1280×720 projector view, and a mobile view into `screenshots/`.
 
-See `VERIFICATION.md` and `tests/browser-results.json` for executed checks and limitations. If WebGL 2 is unavailable, a translated message replaces the scene and the simulation controls continue working. The browser should have hardware acceleration enabled; a final rehearsal on the actual projector/laptop is recommended.
+See `VERIFICATION.md`, `tests/browser-results.json` and `tests/engineering-tour-results.json` for executed checks and limitations. If WebGL 2 is unavailable, a translated message replaces the scene and the simulation controls continue working. The browser should have hardware acceleration enabled; a final rehearsal on the actual projector/laptop is recommended.
+
+The requested tour screenshots are in `screenshots/tour/`: `office-overview.png`, `glass-inspection.png`, `blinds-inspection.png`, `lighting-inspection.png`, and `automation-architecture.png`. Additional captures cover the schematic sensor marker and compact architecture layouts.
+
+Tour screenshot gallery: [Office overview](screenshots/tour/office-overview.png) · [Glass inspection](screenshots/tour/glass-inspection.png) · [Blinds inspection](screenshots/tour/blinds-inspection.png) · [Lighting inspection](screenshots/tour/lighting-inspection.png) · [Automation architecture](screenshots/tour/automation-architecture.png).

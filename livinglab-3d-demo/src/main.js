@@ -6,7 +6,7 @@ const store = createStore();
 const ui = createInterface(store);
 let office;
 try {
-  office = createOffice(ui.host, store.getState(), ui.clearCameraSelection);
+  office = createOffice(ui.host, store.getState(), ui.clearCameraSelection, component => store.dispatch({ type: 'inspect', value: component }));
   store.subscribe((state, action) => office.update(state, action));
   ui.render(store.getState());
 } catch (error) {

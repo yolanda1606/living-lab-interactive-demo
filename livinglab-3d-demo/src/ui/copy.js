@@ -141,7 +141,7 @@ export const copy = {
 Object.assign(copy.de, {
   eyebrow: 'RPTU · LIVING LAB', headline: 'Ein Raum, der mitdenkt.', subtitle: 'Entdecke das Zusammenspiel von Tageslicht, Glas und Beleuchtung.',
   reset: 'Demo zurücksetzen', fullscreen: 'Vollbild', help: 'Hilfe',
-  overview: 'Raumübersicht', windows: 'Fenster & Jalousien', lighting: 'Lichtsystem', cameraReset: 'Kamera zurücksetzen', cutaway: 'Schnittansicht',
+  overview: 'Raumübersicht', windows: 'Fenster & Jalousien', lighting: 'Lichtsystem', cameraReset: 'Ansicht zurücksetzen', cutaway: 'Schnittansicht',
   drag: 'Ziehen: drehen · Scrollen: zoomen', room: 'Smart Office', simBadge: '3D · KONZEPTSIMULATION',
   controlsTitle: 'Den Raum steuern', autoHint: 'Automatik folgt dem Szenario. Zum Experimentieren „Manuell“ wählen.', manualHint: 'Deine Einstellungen bleiben bei einem Wetterwechsel erhalten.',
   tintIntro: 'Eine Reihe steuert alle vier Fenster.', blindEndpoints: '0% oben · 100% unten', tintNote: 'Illustrative Tönung, keine gemessene Lichttransmission.',
@@ -162,7 +162,7 @@ Object.assign(copy.de, {
 Object.assign(copy.en, {
   eyebrow: 'RPTU · LIVING LAB', headline: 'A room that responds.', subtitle: 'Explore how daylight, smart glass and lighting work together.',
   reset: 'Reset Demo', fullscreen: 'Fullscreen', help: 'Help',
-  overview: 'Office Overview', windows: 'Windows and Blinds', lighting: 'Lighting System', cameraReset: 'Reset camera', cutaway: 'Cutaway view',
+  overview: 'Office Overview', windows: 'Windows and Blinds', lighting: 'Lighting System', cameraReset: 'Reset View', cutaway: 'Cutaway view',
   drag: 'Drag to rotate · Scroll to zoom', room: 'Smart Office', simBadge: '3D · CONCEPT SIMULATION',
   controlsTitle: 'Control the room', autoHint: 'Automatic follows the scenario. Select Manual to experiment.', manualHint: 'Your settings stay in place when the weather changes.',
   tintIntro: 'One row controls all four windows.', blindEndpoints: '0% raised · 100% lowered', tintNote: 'Illustrative tint, not measured light transmission.',

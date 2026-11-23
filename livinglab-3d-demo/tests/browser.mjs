@@ -87,7 +87,7 @@ try {
    await page.selectOption('#languageSelect','en');await expect(page.locator('#school, #bachelor')).toHaveCount(0);
    await expect(page.locator('html')).toHaveAttribute('lang','en');await expect(page.locator('.historical')).toBeVisible();await expect(page.locator('.protocol-chain')).toContainText('CODESYS 3.5');
    await expect(page.locator('#live-lighting')).toHaveText('55% · Warm white · Indirect');
-   await page.locator('summary').click();await expect(page.locator('#eventList')).not.toContainText('Warmweiß');
+   await page.locator('.communication-area summary').click();await expect(page.locator('#eventList')).not.toContainText('Warmweiß');
    await page.locator('[data-comm-node="wago"]').click();await expect(page.locator('#communicationExplanation')).toHaveText(copy.en.explanations.wago);
    assert.equal(await page.locator('[data-i18n]').evaluateAll(els=>els.filter(e=>!e.textContent.trim()).length),0);
    await page.selectOption('#languageSelect','de');

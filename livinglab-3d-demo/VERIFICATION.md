@@ -4,9 +4,9 @@ The original HTML and original logo have no Git diff. All changes are contained 
 
 ## Executed checks
 
-- Nine Node regression tests pass (including two new blind-deployment geometry tests): verbatim comparison of all six original presets (including environment metadata); repeated automatic/manual entry; independent manual controls; automatic edit guards and input validation; immutable communication snapshots; language/reset behavior; bilingual dictionary-key parity.
-- Production build succeeds with Vite. JavaScript is approximately 584 kB before compression, including Three.js and OrbitControls; CSS is approximately 16 kB. The complete `dist/` is approximately 1.2 MB including the provided logo and licenses.
-- Eleven Playwright browser groups pass against the local production build. See `tests/browser-results.json` for the executed test names.
+- Fourteen Node regression tests pass (including blind geometry, system isolation, tour state and camera route checks): verbatim comparison of all six original presets (including environment metadata); repeated automatic/manual entry; independent manual controls; automatic edit guards and input validation; immutable communication snapshots; language/reset behavior; bilingual dictionary-key parity.
+- Production build succeeds with Vite. JavaScript is approximately 624 kB before compression, including Three.js and OrbitControls; CSS is approximately 23 kB. The complete `dist/` is approximately 1.2 MB including the provided logo and licenses.
+- Twelve Playwright browser groups pass against the local production build. See `tests/browser-results.json` for the executed test names.
 - Actual Three.js diagnostics verify twelve glass panes, selected-row opacity on four bays, separate blind position and slat angle, light colour/intensity/direction, camera changes and animated intermediate values. Tests use UI interactions; the diagnostics are read-only and opt-in via `?inspect`.
 - All six scenarios produce distinct rendered skies and correct device targets. Screenshot evidence includes Morning, Strong Sunshine and Night.
 - The test browser blocks every nonlocal request before the first navigation. The build loads and works with zero external requests, zero failed requests, and zero browser console/page errors. This verifies independence from internet services, while the loopback static server remains available.
@@ -59,3 +59,29 @@ Removed the learning-level selector and its state/action. The technical architec
 Automatic/Manual now uses a solid selected background and check mark. Each system has an accessible Active/Off switch in both modes. Excluded outputs become clear glass, raised blinds at 0°, or lights at 0%; saved manual settings remain available when reactivated. Selection survives weather and mode changes, and reset restores all systems. Event snapshots include system selection and effective targets; scenario signals omit excluded systems.
 
 Added state coverage for each system in isolation across all six scenarios, manual target retention, ignored edits while excluded, no active systems, reset and event snapshots. Browser coverage exercises each system alone in strong sun and at night, actual rendered targets, selected-mode contrast, disabled controls and restoration. Production build and offline archive updated.
+
+## Interactive engineering tour
+
+Implemented three connected perspectives in the existing application: office exploration, component inspection and an interactive automation architecture within the same viewport. The camera routes, pick volumes and outline selection reuse the existing Three.js scene. The technical diagram is a responsive HTML/SVG overlay, not a second copy of the physical simulation. Its current target labels and animated paths are driven by the same state store as the room.
+
+The eight-step guided tour has explicit Previous/Next/Exit navigation. Presentation actions preserve scenario, manual/automatic mode, active-system selections, manual targets and communication history. The Principle/Engineering information panel is bilingual and expandable. Both the new diagram and the original communication area follow the selected component.
+
+Validation evidence:
+
+- `npm test`: 14 assertions/tests across the three Node test files, including all named camera-route pairs sampled at 2.5% segment intervals against floor, facade, side-wall and ceiling clearance bounds. Tour state tests cover each step, entry/exit, component selection and controller/physical associations.
+- `tests/browser.mjs`: all 12 existing browser groups passed after integration, covering six unchanged presets, independent system switches, automatic/manual behaviour, glass/blind/light controls, camera presets, shortcuts, language, reset, offline requests and WebGL fallback.
+- `tests/engineering-tour.mjs`: component-menu and real 3D picking; visible Three.js selection outlines; bidirectional architecture/physical navigation; controller information and historical status; appropriate protocol branches; all eight tour steps with Previous/Next/Exit; live blind adjustment during the tour; state retention; a real non-reduced camera transition with multiple intermediate rendered positions; interruption and retargeting; German/English content; 1280×720 and 390×844 layouts; offline requests; and architecture navigation when WebGL is unavailable. Results are in `tests/engineering-tour-results.json`.
+- The new tour browser blocks external requests and checks browser page/console errors.
+- Production build succeeded. The offline ZIP was regenerated, checked for archive integrity and compared with the current build entry. Original HTML and logo have no Git diff.
+
+Requested screenshots:
+
+1. [Office overview](screenshots/tour/office-overview.png)
+2. [Electrochromic-glass inspection](screenshots/tour/glass-inspection.png)
+3. [Venetian-blind inspection](screenshots/tour/blinds-inspection.png)
+4. [Lighting inspection](screenshots/tour/lighting-inspection.png)
+5. [Automation architecture](screenshots/tour/automation-architecture.png)
+
+Additional evidence includes full-interface captures, the schematic input marker, guided-tour controls and compact architecture layouts in `screenshots/tour/`. The blind capture uses 65% deployment and 45° tilt; the lighting capture shows 70% warm indirect lighting at night. These are demonstration settings selected for the captures, not settings applied by tour navigation.
+
+Scope limits: the supplied documentation identifies environmental input categories but no specific sensor models or mounting positions. The environmental marker is schematic and contains no fabricated readings. Bachmann/LiSA MPC and software integrations remain historical/unverified; no predictive algorithm, live sensor feed, PLC connection or Voting App path is implemented. The new solar-direction arrow is only an annotation. No scenario values, tint-opacity assumptions or lighting intensities were changed. Camera clearance tests cover the conceptual model and sampled routes, not a surveyed building or physical collision certification. Testing remains Chromium software WebGL on Linux; actual projector/laptop performance needs a local rehearsal.

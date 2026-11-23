@@ -1,3 +1,4 @@
+import { createEngineeringInterface } from '../presentation/interface.js';
 import { copy } from './copy.js';
 import { scenarios } from '../simulation/scenarios.js';
 import { devices } from '../simulation/state.js';
@@ -45,7 +46,7 @@ export function createInterface(store) {
   for (const preset of ['overview','windows','lighting']) document.getElementById(`camera-${preset}`).onclick = () => dispatch('camera', preset);
   document.getElementById('camera-reset').onclick = () => dispatch('camera', 'overview');
   document.getElementById('cutaway').onchange = e => dispatch('cutaway', e.target.checked);
-  document.getElementById('reset').onclick = () => { explainedNode = null; document.querySelector('details').open = false; dispatch('reset'); };
+  document.getElementById('reset').onclick = () => { explainedNode = null; document.querySelector('.communication-area details').open = false; dispatch('reset'); };
   const dialog = document.getElementById('helpDialog');
   document.getElementById('help').onclick = () => dialog.showModal(); document.getElementById('closeHelp').onclick = () => dialog.close();
   const fullscreen = async () => { try { if (document.fullscreenElement) await document.exitFullscreen(); else await document.documentElement.requestFullscreen(); } catch { document.getElementById('notice').textContent = copy[store.getState().language].fullscreenError; } };
@@ -58,7 +59,7 @@ export function createInterface(store) {
     else if (key === 'm') dispatch('mode', false); else if (key === '0') dispatch('mode', true); else if (key === 'r') dispatch('camera', 'overview'); else if (key === 'f') fullscreen(); else if (key === '?') dialog.showModal(); else return;
     e.preventDefault();
   });
-  document.querySelectorAll('[data-comm-node]').forEach(b => b.onclick = () => { explainedNode = b.dataset.commNode; render(store.getState()); });
+  document.querySelectorAll('[data-comm-node]').forEach(b => b.onclick = () => { explainedNode = b.dataset.commNode; dispatch('architecture-node', explainedNode === 'environment' ? 'sensors' : explainedNode); engineeringUI.focusScene(); });
   function active(el, yes) { el.classList.toggle('active', yes); el.setAttribute('aria-pressed', String(yes)); }
   function describe(d, t) { return `${t.nodeGlass}: ${d.tints.map(x => t.states[x]).join(' / ')}. ${t.nodeBlinds}: ${d.blindPosition}% · ${d.slatAngle}°. ${t.nodeLighting}: ${d.lampBrightness}% · ${t[d.lampTemperature === 'warm' ? 'warmWhite' : 'neutralWhite']} · ${t[d.lampDirection === 'direct' ? 'directLight' : 'indirectLight']}.`; }
   function render(state, action = {}) {
@@ -100,6 +101,7 @@ export function createInterface(store) {
     document.getElementById('live-blinds').textContent = `${d.blindPosition}% · ${d.slatAngle}°`;
     document.getElementById('live-lighting').textContent = `${d.lampBrightness}% · ${t[d.lampTemperature === 'warm' ? 'warmWhite' : 'neutralWhite']} · ${t[d.lampDirection === 'direct' ? 'directLight' : 'indirectLight']}`;
     if (['scenario','mode','device','system','reset'].includes(action.type)) explainedNode = null;
+    if (['camera','inspect','reveal','architecture-node','tour-start','tour-step','tour-exit'].includes(action.type)) explainedNode = state.component === 'sensors' ? 'environment' : ['pi','gateway'].includes(state.component) ? 'lighting' : state.component;
     for (const key of Object.keys(state.systems)) {
       if (!state.systems[key]) document.getElementById(`live-${key}`).textContent = `${t.systemOff} · ${t.systemOffState[key]}`;
     }
@@ -120,5 +122,6 @@ export function createInterface(store) {
     const fallback = document.getElementById('fallback'); if (!fallback.hidden) fallback.textContent = t[fallback.dataset.reason || 'webgl'];
   }
   render(store.getState()); store.subscribe(render);
+  const engineeringUI = createEngineeringInterface(store);
   return { host: document.getElementById('viewport'), render, showFailure(reason = 'webgl') { const f = document.getElementById('fallback'); f.hidden = false; f.dataset.reason = reason; f.textContent = copy[store.getState().language][reason]; }, clearCameraSelection() { document.querySelectorAll('.camera-presets button').forEach(b => active(b, false)); } };
 }

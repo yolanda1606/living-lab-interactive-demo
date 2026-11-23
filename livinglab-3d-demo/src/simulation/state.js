@@ -1,9 +1,10 @@
+import { cameraTargets, physicalComponents, architectureNodes, tourSteps } from '../presentation/model.js';
 import { scenarios } from './scenarios.js';
 export const TINT_OPACITY = Object.freeze({ low: .035, medium: .34, high: .72 });
 export const SUPPORTED_SLAT_ANGLES = Object.freeze([0, 30, 45, 80]);
 export const SLAT_OBSTRUCTION = Object.freeze({ 0: .05, 30: .25, 45: .55, 80: .9 });
 const clone = value => structuredClone(value);
-const initial = () => ({ language: 'de', scenario: 'sunrise', automatic: true, systems: { glass: true, blinds: true, lighting: true }, camera: 'overview', cutaway: true, manual: clone(scenarios.sunrise.devices), events: [] });
+const initial = () => ({ language: 'de', scenario: 'sunrise', automatic: true, systems: { glass: true, blinds: true, lighting: true }, camera: 'overview', view: 'office', component: null, tourStep: null, cutaway: true, manual: clone(scenarios.sunrise.devices), events: [] });
 export function devices(state) {
   const target = clone(state.automatic ? scenarios[state.scenario].devices : state.manual);
   if (!state.systems.glass) target.tints = ['low', 'low', 'low'];
@@ -46,7 +47,25 @@ export function createStore() {
         const dest = key === 'tints' ? 'glass' : key.startsWith('lamp') ? 'lighting' : 'blinds';
         if (action.commit !== false) eventFor(key, ['environment', 'wago', dest], { glass: 'BACnet', blinds: 'SMI', lighting: 'ZigBee' }[dest]);
       } else if (type === 'language' && ['de', 'en'].includes(value)) state.language = value;
-      else if (type === 'camera' && ['overview', 'windows', 'lighting'].includes(value)) state.camera = value;
+      else if (type === 'camera' && Object.hasOwn(cameraTargets, value)) {
+        state.camera = value; state.view = value === 'overview' ? 'office' : ['automation','controller'].includes(value) ? 'automation' : 'inspect';
+        state.component = value === 'windows' ? 'glass' : value === 'controller' ? 'wago' : value === 'automation' ? state.component : physicalComponents.includes(value) ? value : null;
+      } else if (type === 'inspect' && physicalComponents.includes(value)) {
+        state.view = 'inspect'; state.component = value; state.camera = value;
+      } else if (type === 'reveal') {
+        state.view = 'automation'; state.camera = 'automation';
+      } else if (type === 'architecture-node' && architectureNodes.includes(value)) {
+        state.component = value;
+        state.view = physicalComponents.includes(value) ? 'inspect' : 'automation';
+        state.camera = physicalComponents.includes(value) ? value : value === 'wago' ? 'controller' : 'automation';
+      } else if (type === 'tour-start' || type === 'tour-step') {
+        const index = type === 'tour-start' ? 0 : value;
+        if (!Number.isInteger(index) || !tourSteps[index]) return;
+        const step = tourSteps[index];
+        state.tourStep = index; state.view = step.view; state.camera = step.camera; state.component = step.component;
+      } else if (type === 'tour-exit') {
+        state.tourStep = null; state.view = 'office'; state.component = null; state.camera = 'overview';
+      }
       else if (type === 'cutaway') state.cutaway = !!value;
       else if (type === 'reset') { state = initial(); eventFor('scenario', ['environment', 'wago', 'glass', 'blinds', 'lighting']); }
       else return;

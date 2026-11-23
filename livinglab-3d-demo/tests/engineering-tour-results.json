@@ -1,0 +1,12 @@
+{
+  "passed": [
+    "Component menu, physical picking and synchronized selections",
+    "Architecture controllers, historical status, relevant signals and unchanged simulation",
+    "Eight guided steps, previous/next/exit, no automatic advance and state retention",
+    "Real camera interpolation stays outside solid geometry and is interruptible",
+    "German translations, projector and mobile layouts, offline and error-free rendering",
+    "Architecture remains available with WebGL unavailable"
+  ],
+  "externalRequests": [],
+  "errors": []
+}
