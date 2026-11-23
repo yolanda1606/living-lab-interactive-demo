@@ -42,13 +42,17 @@ Both server options serve only local files. The bundled Node server binds to loo
 
 ## Use the demo
 
-German, School, Automatic and Sunrise are the startup settings. Choose one of six weather scenarios. Automatic applies the original device preset. Manual copies the **current** automatic settings every time you enter it, then lets you change three tint rows, blind position, slat angle, brightness, colour and light direction independently. Changing weather in Manual keeps your settings. Returning to Automatic restores the selected scenario.
+German, Automatic and Sunrise are the startup settings. Choose one of six weather scenarios. Automatic applies the original device preset. Manual copies the **current** automatic settings every time you enter it, then lets you change three tint rows, blind position, slat angle, brightness, colour and light direction independently. Changing weather in Manual keeps your settings. Returning to Automatic restores the selected scenario.
+
+The selected Automatic/Manual mode has a teal background and check mark. Each system heading has an **Active / Off** switch, available in both modes. For a lighting-only demonstration, leave Lighting active and turn Glass and Blinds off. Off means clear glass, fully raised blinds with a 0° slat target, or lamps at 0%. The other systems keep following the scenario in Automatic mode. Active means included in the demonstration: automatic lighting can still select 0% in daylight.
+
+System selection persists across weather and mode changes. Excluded manual controls are disabled; their saved settings return when reactivated. Entering Manual copies the current scenario settings, including saved targets for excluded systems. Reset Demo enables all three systems. The technical diagram and event history show the effective targets and active-system selection.
 
 Drag the scene to orbit; scroll or pinch to zoom. Panning is disabled and the orbit is bounded to keep the room in view. The three camera buttons and camera reset restore useful views. Cutaway hides side walls and the main ceiling shell; a ceiling island remains to show indirect lighting. Turn cutaway off for a translucent shell.
 
 The office has two square desk groups: one beside the electrochromic glass and one beside the blinds. Each group consists of four rounded triangular desks facing inward, with individual monitors and chairs. Both groups are rotated 45° around their centres. Four seated people give the room scale. The elevated overview shows the desk arrangement; drag to inspect it from other angles.
 
-School uses the chain **Environment → Sensors → Controller → Smart Office** and four short explanation cards. Bachelor reveals the historical architecture, animated signal paths, device targets and protocol details. Both views read the same state. Select a diagram node for its explanation; open Details for the last eight simulated events. Events retain snapshots and are retranslated when language changes.
+The demo always presents the Bachelor-level technical view: historical architecture, animated signal paths, device targets and protocol details. There is no learning-level selector. Select a diagram node for its explanation; open Details for the last eight simulated events. Events retain snapshots and are retranslated when language changes.
 
 | Key | Action |
 | --- | --- |
@@ -59,7 +63,7 @@ School uses the chain **Environment → Sensors → Controller → Smart Office*
 | F / F11 | App fullscreen / browser fullscreen |
 | ? / Escape | Open / close help |
 
-Shortcuts do not hijack text, range or select input. Reset Demo restores startup language, mode, scenario, education level, camera and cutaway.
+Shortcuts do not hijack text, range or select input. Reset Demo restores startup language, mode, scenario, camera and cutaway.
 
 ## Preserved presets
 
@@ -79,7 +83,7 @@ The original CSS positions **four narrow EC bays on the left, a structural colum
 ## Architecture
 
 - `src/simulation/scenarios.js`: original scenario objects, copied verbatim, including original 2D environment metadata for provenance. No preset values changed.
-- `src/simulation/state.js`: one store and one `devices(state)` selector. Automatic reads preset targets; Manual reads copied editable targets. Events store snapshots. Education, language, camera and cutaway selections live here too.
+- `src/simulation/state.js`: one store and one `devices(state)` selector. Automatic reads preset targets; Manual reads copied editable targets. Events store snapshots. Language, camera and cutaway selections live here too.
 - `src/ui/copy.js`: original German/English dictionary plus 3D, education, accessibility and help text.
 - `src/ui/interface.js`: controls, original communication paths/explanations adapted to the store, event log, keyboard and fullscreen. No separate device state.
 - `src/scene/office.js`: geometry, materials, outdoor environment, lighting, OrbitControls, resize, animation and resource disposal. It subscribes to the store and only interpolates visual values toward its targets. It never changes simulation state.

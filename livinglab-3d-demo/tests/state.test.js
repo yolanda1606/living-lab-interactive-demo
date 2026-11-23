@@ -44,12 +44,47 @@ test('communication records store immutable targets and are limited to eight eve
   assert.equal(store.getState().events.length,8); assert.equal(original.devices.lampBrightness,30);
   const state=store.getState(); state.events[0].devices.lampBrightness=1; assert.equal(store.getState().events[0].devices.lampBrightness,70);
 });
-test('education and language changes preserve device settings; reset restores startup', () => {
+test('language changes preserve device settings; reset restores startup', () => {
   const store=createStore(); store.dispatch({type:'scenario',value:'strongSun'}); const before=devices(store.getState());
-  store.dispatch({type:'level',value:'bachelor'}); store.dispatch({type:'language',value:'en'});
-  assert.deepEqual(devices(store.getState()),before); store.dispatch({type:'reset'}); assert.equal(store.getState().scenario,'sunrise'); assert.equal(store.getState().language,'de'); assert.equal(store.getState().level,'school');
+  store.dispatch({type:'language',value:'en'});
+  assert.deepEqual(devices(store.getState()),before); store.dispatch({type:'reset'}); assert.equal(store.getState().scenario,'sunrise'); assert.equal(store.getState().language,'de'); assert.equal('level' in store.getState(),false);
 });
 test('both languages contain the same dictionary keys, including nested explanations', () => {
   const keys = o => Object.keys(o).sort().map(k => typeof o[k]==='object' ? [k,keys(o[k])] : k);
   assert.deepEqual(keys(copy.de),keys(copy.en));
+});
+
+test('system isolation affects only selected outputs across weather and mode changes', () => {
+  for (const selected of ['glass', 'blinds', 'lighting']) {
+    const store = createStore();
+    for (const key of ['glass', 'blinds', 'lighting']) store.dispatch({type:'system',key,value:key===selected});
+    for (const scenario of Object.keys(scenarios)) {
+      store.dispatch({type:'scenario',value:scenario});
+      const d=devices(store.getState()), preset=scenarios[scenario].devices;
+      assert.deepEqual(d.tints, selected==='glass' ? preset.tints : ['low','low','low']);
+      assert.equal(d.blindPosition, selected==='blinds' ? preset.blindPosition : 0);
+      assert.equal(d.slatAngle, selected==='blinds' ? preset.slatAngle : 0);
+      assert.equal(d.lampBrightness, selected==='lighting' ? preset.lampBrightness : 0);
+      assert.deepEqual(store.getState().events[0].paths, ['environment','wago',selected]);
+    }
+    const before=devices(store.getState());store.dispatch({type:'mode',value:false});
+    assert.deepEqual(devices(store.getState()),before);
+    store.dispatch({type:'mode',value:true});assert.equal(store.getState().systems[selected],true);
+    store.dispatch({type:'reset'});assert.deepEqual(store.getState().systems,{glass:true,blinds:true,lighting:true});
+  }
+});
+test('excluded systems preserve manual settings, ignore edits, and restore on reactivation', () => {
+  const store=createStore();store.dispatch({type:'mode',value:false});
+  store.dispatch({type:'device',key:'lampBrightness',value:83});
+  store.dispatch({type:'system',key:'lighting',value:false});
+  const snapshot=store.getState().events[0];
+  store.dispatch({type:'device',key:'lampBrightness',value:41});
+  assert.equal(devices(store.getState()).lampBrightness,0);
+  store.dispatch({type:'system',key:'lighting',value:true});
+  assert.equal(devices(store.getState()).lampBrightness,83);
+  assert.equal(snapshot.systems.lighting,false);assert.equal(snapshot.devices.lampBrightness,0);
+  for(const key of ['glass','blinds','lighting']) store.dispatch({type:'system',key,value:false});
+  assert.deepEqual(devices(store.getState()).tints,['low','low','low']);
+  assert.equal(devices(store.getState()).blindPosition,0);assert.equal(devices(store.getState()).lampBrightness,0);
+  store.dispatch({type:'system',key:'glass',value:'false'});assert.equal(store.getState().systems.glass,false);
 });

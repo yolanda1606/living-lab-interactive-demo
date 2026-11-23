@@ -1,5 +1,6 @@
 {
   "passed": [
+    "Mode selection is visible and systems can be demonstrated independently",
     "All six scenarios: exact state targets and distinct rendered sky / lights",
     "Manual tint affects only the selected row, across four independent panes",
     "Blind position and all four angles are independent",

@@ -3,10 +3,11 @@ import { scenarios } from '../simulation/scenarios.js';
 import { devices } from '../simulation/state.js';
 const tspan = key => `<span data-i18n="${key}"></span>`;
 const button = (id, key, cls = '') => `<button type="button" id="${id}" class="${cls}" data-i18n="${key}"></button>`;
+const systemSwitch = id => `<button type="button" class="system-switch" role="switch" data-system="${id}"><i aria-hidden="true"></i><span></span></button>`;
 export function createInterface(store) {
   document.querySelector('#app').innerHTML = `
     <header class="header"><div class="brand"><img src="./logo_living_lab.png" data-i18n-alt="logoAlt"><div><span class="eyebrow" data-i18n="eyebrow"></span><strong>Smart Office <span class="brand-3d">3D</span></strong></div></div>
-      <div class="header-tools"><div class="segmented" role="group" data-label="level">${button('school','school','active')}${button('bachelor','bachelor')}</div><label class="language"><span class="sr-only" data-i18n="languageLabel"></span><select id="languageSelect"><option value="de">Deutsch</option><option value="en">English</option></select></label>${button('help','help','quiet')}${button('fullscreen','fullscreen','quiet')}${button('reset','reset','reset')}</div></header>
+      <div class="header-tools"><label class="language"><span class="sr-only" data-i18n="languageLabel"></span><select id="languageSelect"><option value="de">Deutsch</option><option value="en">English</option></select></label>${button('help','help','quiet')}${button('fullscreen','fullscreen','quiet')}${button('reset','reset','reset')}</div></header>
     <main><div class="intro"><div><h1 data-i18n="headline"></h1><p data-i18n="subtitle"></p></div><span class="local-badge" data-i18n="simBadge"></span></div>
     <nav class="scenarios" data-label="scenarioQuestion">${Object.entries(scenarios).map(([key], i) => `<button class="scenario" data-scenario="${key}"><span class="weather-icon" aria-hidden="true">${['◒','◔','☀','☁','◓','☾'][i]}</span><span class="scenario-name"></span></button>`).join('')}</nav>
     <div class="workspace"><section class="visual-panel"><div id="viewport"><div class="scene-heading"><div><span class="overline" data-i18n="room"></span><strong id="sceneName"></strong></div><span id="modeBadge"></span></div><div id="fallback" role="status" hidden></div><div class="facade-legend"><span><i class="glass-dot"></i>${tspan('facadeGlass')}</span><span><i class="blind-dot"></i>${tspan('facadeBlinds')}</span></div></div>
@@ -14,13 +15,12 @@ export function createInterface(store) {
       <div class="scene-caption"><span data-i18n="drag"></span><span data-i18n="geometryNote"></span></div>
       <div class="learning-cards"><article><span class="card-number">01</span><h3 data-i18n="outside"></h3><p id="outsideText"></p></article><article><span class="card-number">02</span><h3 data-i18n="detection"></h3><p data-i18n="detectionText"></p></article><article><span class="card-number">03</span><h3 data-i18n="response"></h3><p id="responseText"></p></article><article><span class="card-number">04</span><h3 data-i18n="benefit"></h3><p id="benefitText"></p></article></div>
     </section>
-    <aside class="controls"><div class="control-header"><h2 data-i18n="controlsTitle"></h2><div class="segmented modes">${button('automaticMode','automatic','active')}${button('manualMode','manual')}</div><p id="modeHint"></p></div>
-      <section class="device-section"><div class="device-title"><span class="device-symbol">▦</span><h3 data-i18n="tintTitle"></h3></div><p data-i18n="tintIntro"></p><div class="tint-matrix" role="group" data-label="tintMatrix"><span></span>${['tintLow','tintMedium','tintHigh'].map(tspan).join('')}${['tintTop','tintMiddle','tintBottom'].map((row, i) => `${tspan(row)}${['low','medium','high'].map(level => `<button class="tint-option" data-row="${i}" data-tint="${level}"><i class="swatch ${level}"></i></button>`).join('')}`).join('')}</div><small data-i18n="tintNote"></small></section>
-      <section class="device-section"><div class="device-title"><span class="device-symbol">☰</span><h3 data-i18n="blindTitle"></h3></div><label class="range-label" for="blindPosition">${tspan('blindPosition')}<output id="blindPositionValue"></output></label><input id="blindPosition" type="range" min="0" max="100" step="1"><small data-i18n="blindEndpoints"></small><div class="range-label angle-label">${tspan('slatAngle')}<output id="slatAngleValue"></output></div><div class="angles" role="group" data-label="slatAngleGroup">${[0,30,45,80].map(a => `<button class="angle-option" data-angle="${a}"><i style="--angle:${-a}deg" aria-hidden="true"></i>${a}°</button>`).join('')}</div></section>
-      <section class="device-section"><div class="device-title"><span class="device-symbol">⊙</span><h3 data-i18n="lightingTitle"></h3></div><label class="range-label" for="lampBrightness">${tspan('lampBrightness')}<output id="lampBrightnessValue"></output></label><input id="lampBrightness" type="range" min="0" max="100" step="1"><div class="lighting-options" role="group" data-label="temperatureGroup"><button data-temperature="warm" data-i18n="warmWhite"></button><button data-temperature="neutral" data-i18n="neutralWhite"></button></div><div class="lighting-options" role="group" data-label="directionGroup"><button data-direction="direct" data-i18n="directLight"></button><button data-direction="indirect" data-i18n="indirectLight"></button></div></section>
+    <aside class="controls"><div class="control-header"><h2 data-i18n="controlsTitle"></h2><div class="segmented modes" role="group" data-label="modeLabel">${button('automaticMode','automatic','active')}${button('manualMode','manual')}</div><div class="system-hint" data-i18n="systemHint"></div><p id="modeHint"></p></div>
+      <section class="device-section"><div class="device-title"><span class="device-symbol">▦</span><h3 data-i18n="tintTitle"></h3>${systemSwitch('glass')}</div><p data-i18n="tintIntro"></p><div class="tint-matrix" role="group" data-label="tintMatrix"><span></span>${['tintLow','tintMedium','tintHigh'].map(tspan).join('')}${['tintTop','tintMiddle','tintBottom'].map((row, i) => `${tspan(row)}${['low','medium','high'].map(level => `<button class="tint-option" data-row="${i}" data-tint="${level}"><i class="swatch ${level}"></i></button>`).join('')}`).join('')}</div><small data-i18n="tintNote"></small></section>
+      <section class="device-section"><div class="device-title"><span class="device-symbol">☰</span><h3 data-i18n="blindTitle"></h3>${systemSwitch('blinds')}</div><label class="range-label" for="blindPosition">${tspan('blindPosition')}<output id="blindPositionValue"></output></label><input id="blindPosition" type="range" min="0" max="100" step="1"><small data-i18n="blindEndpoints"></small><div class="range-label angle-label">${tspan('slatAngle')}<output id="slatAngleValue"></output></div><div class="angles" role="group" data-label="slatAngleGroup">${[0,30,45,80].map(a => `<button class="angle-option" data-angle="${a}"><i style="--angle:${-a}deg" aria-hidden="true"></i>${a}°</button>`).join('')}</div></section>
+      <section class="device-section"><div class="device-title"><span class="device-symbol">⊙</span><h3 data-i18n="lightingTitle"></h3>${systemSwitch('lighting')}</div><label class="range-label" for="lampBrightness">${tspan('lampBrightness')}<output id="lampBrightnessValue"></output></label><input id="lampBrightness" type="range" min="0" max="100" step="1"><div class="lighting-options" role="group" data-label="temperatureGroup"><button data-temperature="warm" data-i18n="warmWhite"></button><button data-temperature="neutral" data-i18n="neutralWhite"></button></div><div class="lighting-options" role="group" data-label="directionGroup"><button data-direction="direct" data-i18n="directLight"></button><button data-direction="indirect" data-i18n="indirectLight"></button></div></section>
     </aside></div>
-    <section class="communication-area" data-view="simple"><div class="communication-head"><h2 data-i18n="communicationTitle"></h2><span data-i18n="simulationStatus"></span></div>
-      <div class="flow" data-label="communicationDiagram">${['flowWeather','flowSensors','flowControl','flowRoom'].map((key,i)=>`${i ? '<span class="flow-arrow" aria-hidden="true">→</span>':''}<span class="flow-step" data-i18n="${key}"></span>`).join('')}</div>
+    <section class="communication-area" data-view="technical"><div class="communication-head"><h2 data-i18n="communicationTitle"></h2><span data-i18n="simulationStatus"></span></div>
       <div class="technical-only"><p class="historical" data-i18n="historical"></p></div>
       <div class="communication-diagram"><button data-comm-node="environment"><strong data-i18n="nodeEnvironment"></strong></button><span class="communication-link" data-comm-path="environment"></span><button data-comm-node="wago"><strong data-i18n="nodeWago"></strong><small class="technical-only" data-i18n="nodeWagoDetail"></small></button><div class="device-paths">${[['glass','nodeGlass','BACnet','nodeGlassDetail'],['blinds','nodeBlinds','SMI','nodeBlindsDetail'],['lighting','nodeLighting','ZigBee','nodeLightingDetail']].map(([id,key,protocol,detail])=>`<div class="device-path" data-comm-path="${id}"><span class="protocol technical-only">${protocol}</span><button data-comm-node="${id}"><strong data-i18n="${key}"></strong><small class="technical-only" data-i18n="${detail}"></small><span class="device-live" id="live-${id}"></span></button></div>`).join('')}</div><div class="technical-only mpc"><span>Modbus TCP ···</span><button data-comm-node="mpc"><strong data-i18n="nodeMpc"></strong><small data-i18n="nodeMpcDetail"></small></button></div></div>
       <p class="technical-only protocol-chain" data-i18n="protocolLighting"></p><div class="communication-explanation" aria-live="polite"><strong data-i18n="happeningTitle"></strong><p id="communicationExplanation"></p></div><details><summary data-i18n="showDetails"></summary><h3 data-i18n="communicationLogTitle"></h3><ol id="eventList"></ol></details>
@@ -30,8 +30,8 @@ export function createInterface(store) {
   let explainedNode = null, timers = [];
   const dispatch = (type, value, more = {}) => store.dispatch({ type, value, ...more });
   document.querySelectorAll('[data-scenario]').forEach(b => b.onclick = () => dispatch('scenario', b.dataset.scenario));
-  for (const level of ['school', 'bachelor']) document.getElementById(level).onclick = () => dispatch('level', level);
   document.getElementById('languageSelect').onchange = e => dispatch('language', e.target.value);
+  document.querySelectorAll('[data-system]').forEach(b => b.onclick = () => dispatch('system', !store.getState().systems[b.dataset.system], { key: b.dataset.system }));
   document.getElementById('automaticMode').onclick = () => dispatch('mode', true);
   document.getElementById('manualMode').onclick = () => dispatch('mode', false);
   document.querySelectorAll('[data-tint]').forEach(b => b.onclick = () => dispatch('device', b.dataset.tint, { key: 'tints', row: +b.dataset.row }));
@@ -63,6 +63,18 @@ export function createInterface(store) {
   function describe(d, t) { return `${t.nodeGlass}: ${d.tints.map(x => t.states[x]).join(' / ')}. ${t.nodeBlinds}: ${d.blindPosition}% · ${d.slatAngle}°. ${t.nodeLighting}: ${d.lampBrightness}% · ${t[d.lampTemperature === 'warm' ? 'warmWhite' : 'neutralWhite']} · ${t[d.lampDirection === 'direct' ? 'directLight' : 'indirectLight']}.`; }
   function render(state, action = {}) {
     const t = copy[state.language], d = devices(state), scenario = scenarios[state.scenario];
+    const systemNames = { glass: t.nodeGlass, blinds: t.nodeBlinds, lighting: t.nodeLighting };
+    const selectedNames = Object.keys(state.systems).filter(key => state.systems[key]).map(key => systemNames[key]);
+    const isolated = selectedNames.length < 3;
+    document.querySelectorAll('[data-system]').forEach(b => {
+      const key = b.dataset.system, enabled = state.systems[key];
+      b.setAttribute('aria-checked', String(enabled));
+      b.setAttribute('aria-label', `${systemNames[key]}: ${t.systemSelection}`);
+      b.title = t.systemOffHelp[key];
+      b.querySelector('span').textContent = enabled ? t.systemActive : t.systemOff;
+      b.closest('.device-section').classList.toggle('system-excluded', !enabled);
+      document.querySelector(`[data-comm-path="${key}"]`).classList.toggle('system-excluded', !enabled);
+    });
     document.documentElement.lang = state.language; document.title = `${t.pageTitle} · 3D`;
     document.querySelectorAll('[data-i18n]').forEach(el => el.textContent = t[el.dataset.i18n]);
     document.querySelectorAll('[data-i18n-alt]').forEach(el => el.alt = t[el.dataset.i18nAlt]);
@@ -72,33 +84,34 @@ export function createInterface(store) {
     document.getElementById('sceneName').textContent = scenario.labels[state.language];
     document.getElementById('modeBadge').textContent = state.automatic ? t.automatic : t.manual;
     document.querySelectorAll('[data-scenario]').forEach(b => { active(b, state.scenario === b.dataset.scenario); b.querySelector('.scenario-name').textContent = scenarios[b.dataset.scenario].labels[state.language]; });
-    for (const level of ['school','bachelor']) active(document.getElementById(level), state.level === level);
     active(document.getElementById('automaticMode'), state.automatic); active(document.getElementById('manualMode'), !state.automatic);
     document.getElementById('modeHint').textContent = t[state.automatic ? 'autoHint' : 'manualHint'];
-    document.querySelectorAll('[data-tint]').forEach(b => { active(b, d.tints[+b.dataset.row] === b.dataset.tint); b.disabled = state.automatic; b.setAttribute('aria-label', t.tintCell(t[['tintTop','tintMiddle','tintBottom'][+b.dataset.row]], t.states[b.dataset.tint])); });
-    document.querySelectorAll('[data-angle]').forEach(b => { active(b, d.slatAngle === +b.dataset.angle); b.disabled = state.automatic; });
-    for (const [attr,key] of [['temperature','lampTemperature'],['direction','lampDirection']]) document.querySelectorAll(`[data-${attr}]`).forEach(b => { active(b, d[key] === b.dataset[attr]); b.disabled = state.automatic; });
-    for (const key of ['blindPosition','lampBrightness']) { document.getElementById(key).value = d[key]; document.getElementById(key).disabled = state.automatic; document.getElementById(`${key}Value`).textContent = `${d[key]}%`; }
+    document.querySelectorAll('[data-tint]').forEach(b => { active(b, d.tints[+b.dataset.row] === b.dataset.tint); b.disabled = state.automatic || !state.systems.glass; b.setAttribute('aria-label', t.tintCell(t[['tintTop','tintMiddle','tintBottom'][+b.dataset.row]], t.states[b.dataset.tint])); });
+    document.querySelectorAll('[data-angle]').forEach(b => { active(b, d.slatAngle === +b.dataset.angle); b.disabled = state.automatic || !state.systems.blinds; });
+    for (const [attr,key] of [['temperature','lampTemperature'],['direction','lampDirection']]) document.querySelectorAll(`[data-${attr}]`).forEach(b => { active(b, d[key] === b.dataset[attr]); b.disabled = state.automatic || !state.systems.lighting; });
+    for (const key of ['blindPosition','lampBrightness']) { document.getElementById(key).value = d[key]; document.getElementById(key).disabled = state.automatic || !state.systems[key === 'blindPosition' ? 'blinds' : 'lighting']; document.getElementById(`${key}Value`).textContent = `${d[key]}%`; }
     document.getElementById('slatAngleValue').textContent = `${d.slatAngle}°`;
     for (const preset of ['overview','windows','lighting']) active(document.getElementById(`camera-${preset}`), state.camera === preset);
     document.getElementById('cutaway').checked = state.cutaway;
     document.getElementById('outsideText').textContent = t.weather[state.scenario];
-    document.getElementById('responseText').textContent = state.automatic ? t.actionExplanations[state.scenario] : t.actionExplanations.manual;
-    document.getElementById('benefitText').textContent = state.automatic ? t.states[d.goal] : t.manualHint;
-    document.querySelector('.communication-area').dataset.view = state.level === 'school' ? 'simple' : 'technical';
+    document.getElementById('responseText').textContent = isolated ? t.systemResponse(selectedNames.join(', ') || t.noSystems) : state.automatic ? t.actionExplanations[state.scenario] : t.actionExplanations.manual;
+    document.getElementById('benefitText').textContent = isolated ? t.isolationHint : state.automatic ? t.states[d.goal] : t.manualHint;
     document.getElementById('live-glass').textContent = d.tints.map(x => t.states[x]).join(' / ');
     document.getElementById('live-blinds').textContent = `${d.blindPosition}% · ${d.slatAngle}°`;
     document.getElementById('live-lighting').textContent = `${d.lampBrightness}% · ${t[d.lampTemperature === 'warm' ? 'warmWhite' : 'neutralWhite']} · ${t[d.lampDirection === 'direct' ? 'directLight' : 'indirectLight']}`;
-    if (['scenario','mode','device','reset'].includes(action.type)) explainedNode = null;
+    if (['scenario','mode','device','system','reset'].includes(action.type)) explainedNode = null;
+    for (const key of Object.keys(state.systems)) {
+      if (!state.systems[key]) document.getElementById(`live-${key}`).textContent = `${t.systemOff} · ${t.systemOffState[key]}`;
+    }
     const latest = state.events[0];
     const explanationKey = latest?.type === 'scenario' ? state.automatic ? state.scenario : 'manual' : latest?.type === 'tints' ? 'tint' : latest?.type.startsWith('lamp') ? 'lighting' : ['blindPosition','slatAngle'].includes(latest?.type) ? 'blinds' : state.automatic ? 'automatic' : 'manual';
-    document.getElementById('communicationExplanation').textContent = explainedNode ? (state.level === 'school' ? t.schoolNodes[explainedNode] : t.explanations[explainedNode]) : (latest?.type === 'scenario' && !state.automatic ? t.manualWeather : t.actionExplanations[explanationKey]);
+    document.getElementById('communicationExplanation').textContent = explainedNode ? t.explanations[explainedNode] : isolated ? t.systemResponse(selectedNames.join(', ') || t.noSystems) : (latest?.type === 'scenario' && !state.automatic ? t.manualWeather : t.actionExplanations[explanationKey]);
     document.getElementById('eventList').replaceChildren(...state.events.map(event => {
       const item = document.createElement('li'), label = document.createElement('b');
-      label.textContent = state.level === 'bachelor' ? event.protocol === 'local' ? t.localModel : event.protocol : event.automatic ? t.automatic : t.manual;
-      item.append(label, document.createTextNode(`${scenarios[event.scenario].labels[state.language]} · ${t.request}: ${describe(event.devices, t)}`)); return item;
+      label.textContent = event.protocol === 'local' ? t.localModel : event.protocol;
+      item.append(label, document.createTextNode(`${scenarios[event.scenario].labels[state.language]} · ${t.request}: ${describe(event.devices, t)} ${t.systemSelection}: ${Object.keys(event.systems).filter(key => event.systems[key]).map(key => systemNames[key]).join(', ') || t.noSystems}.`)); return item;
     }));
-    if (['scenario','mode','device','reset'].includes(action.type) && action.commit !== false) {
+    if (['scenario','mode','device','system','reset'].includes(action.type) && action.commit !== false) {
       timers.forEach(clearTimeout); timers = [];
       document.querySelectorAll('.signal-active').forEach(el => el.classList.remove('signal-active'));
       latest.paths.forEach((path, index) => timers.push(setTimeout(() => { document.querySelector(`[data-comm-node="${path}"]`)?.classList.add('signal-active'); document.querySelector(`[data-comm-path="${path}"]`)?.classList.add('signal-active'); }, index * 180)));

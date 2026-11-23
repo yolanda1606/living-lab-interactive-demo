@@ -140,7 +140,7 @@ export const copy = {
 
 Object.assign(copy.de, {
   eyebrow: 'RPTU · LIVING LAB', headline: 'Ein Raum, der mitdenkt.', subtitle: 'Entdecke das Zusammenspiel von Tageslicht, Glas und Beleuchtung.',
-  school: 'Schule', bachelor: 'Bachelor', level: 'Lernniveau', reset: 'Demo zurücksetzen', fullscreen: 'Vollbild', help: 'Hilfe',
+  reset: 'Demo zurücksetzen', fullscreen: 'Vollbild', help: 'Hilfe',
   overview: 'Raumübersicht', windows: 'Fenster & Jalousien', lighting: 'Lichtsystem', cameraReset: 'Kamera zurücksetzen', cutaway: 'Schnittansicht',
   drag: 'Ziehen: drehen · Scrollen: zoomen', room: 'Smart Office', simBadge: '3D · KONZEPTSIMULATION',
   controlsTitle: 'Den Raum steuern', autoHint: 'Automatik folgt dem Szenario. Zum Experimentieren „Manuell“ wählen.', manualHint: 'Deine Einstellungen bleiben bei einem Wetterwechsel erhalten.',
@@ -153,7 +153,6 @@ Object.assign(copy.de, {
   nodeLightingDetail: 'Raspberry Pi · CODESYS 3.5 · deCONZ / Phoscon · ZigBee',
   protocolLighting: 'Modbus TCP → Raspberry Pi / CODESYS 3.5 → REST/HTTP → deCONZ / Phoscon → ZigBee',
   request: 'Zielwerte', manualWeather: 'Das Wetter ändert sich. Im manuellen Modus bleiben deine Geräteeinstellungen unverändert.',
-  schoolNodes: { environment: 'Das gewählte Wetter liefert Informationen über das Tageslicht.', wago: 'Die Steuerung wählt passende Einstellungen für Glas, Jalousien und Licht.', glass: 'Die Glasreihen werden heller oder dunkler und lassen unterschiedlich viel Tageslicht durch.', blinds: 'Jalousien fahren auf und ab. Drehbare Lamellen lenken und begrenzen das Sonnenlicht.', lighting: 'Leuchten ergänzen Tageslicht. Helligkeit, Lichtfarbe und Richtung sind einstellbar.' },
   helpTitle: 'So erkundest du den Raum', helpText: 'Wähle ein Wetter und beobachte den Raum. Wechsle zu „Manuell“, um jedes System selbst einzustellen. Ziehen dreht die Ansicht, Scrollen oder zwei Finger zoomen. Die Kameratasten bringen dich immer zurück.',
   shortcuts: '1 starke Sonne · 2 bewölkt · 3 Nacht · 4–6 Glasreihe fokussieren · M manuell · 0 Automatik · R Kamera · F Vollbild · ? Hilfe · F11 Browser-Vollbild',
   close: 'Schließen', webgl: 'Die 3D-Ansicht benötigt WebGL 2. Aktiviere Hardwarebeschleunigung in einem aktuellen Chrome, Edge oder Firefox und lade die Seite neu. Alle Simulationsregler bleiben bedienbar.',
@@ -162,7 +161,7 @@ Object.assign(copy.de, {
 });
 Object.assign(copy.en, {
   eyebrow: 'RPTU · LIVING LAB', headline: 'A room that responds.', subtitle: 'Explore how daylight, smart glass and lighting work together.',
-  school: 'School', bachelor: 'Bachelor', level: 'Learning level', reset: 'Reset Demo', fullscreen: 'Fullscreen', help: 'Help',
+  reset: 'Reset Demo', fullscreen: 'Fullscreen', help: 'Help',
   overview: 'Office Overview', windows: 'Windows and Blinds', lighting: 'Lighting System', cameraReset: 'Reset camera', cutaway: 'Cutaway view',
   drag: 'Drag to rotate · Scroll to zoom', room: 'Smart Office', simBadge: '3D · CONCEPT SIMULATION',
   controlsTitle: 'Control the room', autoHint: 'Automatic follows the scenario. Select Manual to experiment.', manualHint: 'Your settings stay in place when the weather changes.',
@@ -175,10 +174,26 @@ Object.assign(copy.en, {
   nodeLightingDetail: 'Raspberry Pi · CODESYS 3.5 · deCONZ / Phoscon · ZigBee',
   protocolLighting: 'Modbus TCP → Raspberry Pi / CODESYS 3.5 → REST/HTTP → deCONZ / Phoscon → ZigBee',
   request: 'Target settings', manualWeather: 'The weather changes. In manual mode, your device settings remain unchanged.',
-  schoolNodes: { environment: 'The selected weather supplies information about daylight.', wago: 'The controller chooses settings for glass, blinds and lighting.', glass: 'The glass rows become lighter or darker, admitting different amounts of daylight.', blinds: 'Blinds move up and down. Rotating slats redirect and limit sunlight.', lighting: 'Lights supplement daylight. Brightness, colour and direction are adjustable.' },
   helpTitle: 'Explore the room', helpText: 'Choose the weather and watch the room respond. Switch to Manual to adjust each system. Drag to rotate, scroll or pinch to zoom. Camera buttons always bring you back.',
   shortcuts: '1 strong sun · 2 cloudy · 3 night · 4–6 focus glass row · M manual · 0 automatic · R camera · F fullscreen · ? help · F11 browser fullscreen',
   close: 'Close', webgl: 'The 3D view requires WebGL 2. Enable hardware acceleration in a current Chrome, Edge or Firefox and reload. All simulation controls remain available.',
   contextLost: 'The graphics connection was interrupted. Reload the page to restore the 3D view.', fullscreenError: 'Fullscreen is unavailable here. Use F11 in your browser.',
   weather: {sunrise: 'The sun is low. Warm light enters the room.', morning: 'Clear skies and bright daylight.', strongSun: 'Strong sunlight can cause glare at the desk.', cloudy: 'Clouds diffuse the light. Direct sunlight decreases.', sunset: 'The sun is low. Daylight is fading.', night: 'It is dark outside. Artificial lighting takes over.'}
+});
+
+Object.assign(copy.de, {
+  modeLabel: 'Betriebsmodus', systemHint: 'Systeme für die Vorführung auswählen',
+  systemSelection: 'Aktive Systeme', systemActive: 'Aktiv', systemOff: 'Aus', noSystems: 'Keine',
+  isolationHint: 'Ausgeschaltet: klares Glas, hochgefahrene Jalousien, Licht aus.',
+  systemResponse: names => `Aktive Systeme: ${names}. Nur diese Systeme reagieren auf Automatik oder manuelle Einstellungen.`,
+  systemOffState: { glass: 'Klares Glas', blinds: 'Hochgefahren', lighting: 'Licht aus' },
+  systemOffHelp: { glass: 'Aus: Glas bleibt klar. Aktiv: Tönung folgt dem gewählten Modus.', blinds: 'Aus: Jalousien bleiben oben. Aktiv: Jalousien folgen dem gewählten Modus.', lighting: 'Aus: Leuchten bleiben aus. Aktiv: Beleuchtung folgt dem gewählten Modus; bei Tageslicht kann sie 0% betragen.' }
+});
+Object.assign(copy.en, {
+  modeLabel: 'Operating mode', systemHint: 'Select systems to demonstrate',
+  systemSelection: 'Active systems', systemActive: 'Active', systemOff: 'Off', noSystems: 'None',
+  isolationHint: 'When off: clear glass, raised blinds, lights off.',
+  systemResponse: names => `Active systems: ${names}. Only these systems respond to automatic or manual settings.`,
+  systemOffState: { glass: 'Clear glass', blinds: 'Raised', lighting: 'Lights off' },
+  systemOffHelp: { glass: 'Off: glass stays clear. Active: tint follows the selected mode.', blinds: 'Off: blinds stay raised. Active: blinds follow the selected mode.', lighting: 'Off: lamps stay off. Active: lighting follows the selected mode; daylight may result in 0% brightness.' }
 });

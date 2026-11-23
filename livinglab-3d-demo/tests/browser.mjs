@@ -1,6 +1,8 @@
 import { chromium, expect } from '@playwright/test';
 import assert from 'node:assert/strict';
 import { mkdir, writeFile } from 'node:fs/promises';
+import { copy } from '../src/ui/copy.js';
+import { devices } from '../src/simulation/state.js';
 import { scenarios } from '../src/simulation/scenarios.js';
 const base = process.env.DEMO_URL || 'http://127.0.0.1:4173';
 const browser = await chromium.launch({ executablePath: process.env.CHROMIUM_PATH || undefined, args: ['--no-sandbox', '--use-angle=swiftshader', '--enable-unsafe-swiftshader'] });
@@ -15,13 +17,41 @@ async function check(name,fn){await fn();results.push(name);console.log(`PASS ${
 const state=()=>page.evaluate(()=>window.livingLab.state());
 const scene=()=>page.evaluate(()=>window.livingLab.scene());
 const settle=async()=>{
- const s=await state(),d=s.automatic?scenarios[s.scenario].devices:s.manual;
+ const s=await state(),d=devices(s);
  await page.waitForFunction(d=>{const v=window.livingLab?.scene();const op={low:.035,medium:.34,high:.72};return v&&Math.abs(v.blindPosition-d.blindPosition)<.01&&Math.abs(v.slatAngle-d.slatAngle)<.01&&Math.abs(v.brightness-d.lampBrightness/100)<.001&&Math.abs(v.direction-(d.lampDirection==='direct'?1:0))<.001&&v.panes.every(p=>Math.abs(p.opacity-op[d.tints[p.row]])<.001);},d);
  await page.evaluate(()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve))));
 };
 const slider=async(id,value)=>{await page.locator(`#${id}`).evaluate((el,v)=>{el.value=v;el.dispatchEvent(new Event('input',{bubbles:true}));el.dispatchEvent(new Event('change',{bubbles:true}));},String(value));await settle();};
 try {
  await page.goto(`${base}/?inspect`); await page.waitForFunction(()=>window.livingLab?.scene()?.panes.length===12); await settle();
+ await check('Mode selection is visible and systems can be demonstrated independently',async()=>{
+   const automatic=page.locator('#automaticMode'), manual=page.locator('#manualMode');
+   await expect(automatic).toHaveAttribute('aria-pressed','true');
+   const selectedColor=await automatic.evaluate(el=>getComputedStyle(el).backgroundColor);
+   assert.notEqual(selectedColor,await manual.evaluate(el=>getComputedStyle(el).backgroundColor));
+   for(const selected of ['glass','blinds','lighting']) {
+     for(const key of ['glass','blinds','lighting']) {
+       const toggle=page.locator(`[data-system="${key}"]`);
+       if((await toggle.getAttribute('aria-checked'))!==String(key===selected)) await toggle.click();
+     }
+     for(const scenario of ['strongSun','night']) {
+       await page.locator(`[data-scenario="${scenario}"]`).click();await settle();
+       const v=await scene(),preset=scenarios[scenario].devices;
+       assert.equal(v.brightness,selected==='lighting'?preset.lampBrightness/100:0);
+       assert.equal(v.blindPosition,selected==='blinds'?preset.blindPosition:0);
+       assert.ok(v.panes.every(p=>p.opacity===(selected==='glass'?{low:.035,medium:.34,high:.72}[preset.tints[p.row]]:.035)));
+     }
+   }
+   await manual.click();await expect(manual).toHaveAttribute('aria-pressed','true');
+   assert.equal(await manual.evaluate(el=>getComputedStyle(el).backgroundColor),selectedColor);
+   await expect(page.locator('#blindPosition')).toBeDisabled();
+   await slider('lampBrightness',83);await page.locator('[data-system="lighting"]').click();await settle();
+   await expect(page.locator('#lampBrightness')).toBeDisabled();assert.equal((await scene()).brightness,0);
+   await page.locator('[data-system="lighting"]').click();await settle();assert.equal((await scene()).brightness,.83);
+   await page.locator('#reset').click();await settle();
+   for(const key of ['glass','blinds','lighting']) await expect(page.locator(`[data-system="${key}"]`)).toHaveAttribute('aria-checked','true');
+   await expect(automatic).toHaveAttribute('aria-pressed','true');
+ });
  await check('All six scenarios: exact state targets and distinct rendered sky / lights',async()=>{
    const skies=[];
    for(const [name,model] of Object.entries(scenarios)){
@@ -54,11 +84,11 @@ try {
    await page.locator('#automaticMode').click();await page.locator('[data-scenario="sunset"]').click();await page.locator('#manualMode').click();assert.deepEqual((await state()).manual,scenarios.sunset.devices);
  });
  await check('Bilingual interface and historical communication share device state',async()=>{
-   await page.selectOption('#languageSelect','en');await page.locator('#bachelor').click();
+   await page.selectOption('#languageSelect','en');await expect(page.locator('#school, #bachelor')).toHaveCount(0);
    await expect(page.locator('html')).toHaveAttribute('lang','en');await expect(page.locator('.historical')).toBeVisible();await expect(page.locator('.protocol-chain')).toContainText('CODESYS 3.5');
    await expect(page.locator('#live-lighting')).toHaveText('55% · Warm white · Indirect');
    await page.locator('summary').click();await expect(page.locator('#eventList')).not.toContainText('Warmweiß');
-   const s=await state();await page.locator('#school').click();assert.deepEqual((await state()).manual,s.manual);
+   await page.locator('[data-comm-node="wago"]').click();await expect(page.locator('#communicationExplanation')).toHaveText(copy.en.explanations.wago);
    assert.equal(await page.locator('[data-i18n]').evaluateAll(els=>els.filter(e=>!e.textContent.trim()).length),0);
    await page.selectOption('#languageSelect','de');
  });
@@ -67,13 +97,13 @@ try {
    for(const p of ['overview','windows','lighting']){await page.locator(`#camera-${p}`).click();await settle();positions.push((await scene()).camera);}
    assert.equal(new Set(positions.map(JSON.stringify)).size,3);
    await page.locator('#camera-reset').click();await settle();assert.deepEqual((await scene()).camera,positions[0]);
-   const bounds=await page.locator('canvas').boundingBox();await page.mouse.move(bounds.x+bounds.width/2,bounds.y+bounds.height/2);await page.mouse.down();await page.mouse.move(bounds.x+bounds.width/2+60,bounds.y+bounds.height/2+20,{steps:8});await page.mouse.up();await settle();assert.notDeepEqual((await scene()).camera,positions[0]);
+   await page.locator('canvas').scrollIntoViewIfNeeded();const bounds=await page.locator('canvas').boundingBox();await page.mouse.move(bounds.x+bounds.width/2,bounds.y+bounds.height/2);await page.mouse.down();await page.mouse.move(bounds.x+bounds.width/2+60,bounds.y+bounds.height/2+20,{steps:8});await page.mouse.up();await settle();assert.notDeepEqual((await scene()).camera,positions[0]);
    await page.locator('#camera-reset').click();await page.locator('#cutaway').uncheck();await page.locator('#cutaway').check();
  });
  await check('Original shortcuts, help, reset and projector / mobile layouts',async()=>{
    await page.locator('#reset').click();await page.keyboard.press('1');assert.equal((await state()).scenario,'strongSun');await page.keyboard.press('4');assert.equal((await state()).automatic,false);
    await page.keyboard.press('0');assert.equal((await state()).automatic,true);await page.keyboard.press('?');await expect(page.locator('dialog')).toBeVisible();await page.keyboard.press('Escape');
-   await page.locator('#reset').click();assert.equal((await state()).scenario,'sunrise');
+   await page.locator('#reset').click();assert.equal((await state()).scenario,'sunrise');await expect(page.locator('.historical')).toBeVisible();await expect(page.locator('#school, #bachelor')).toHaveCount(0);
    await page.setViewportSize({width:1280,height:720});await settle();await page.screenshot({path:'screenshots/projector-1280x720.png'});
    assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));
    assert.ok(await page.locator('.controls').evaluate(el=>el.getBoundingClientRect().bottom<=innerHeight));

@@ -14,7 +14,7 @@ try {
  await page.locator('#blindPosition').evaluate(el=>{el.value=65;el.dispatchEvent(new Event('input'));el.dispatchEvent(new Event('change'));});await page.locator('[data-angle="45"]').click();
  await page.locator('#camera-windows').click();await page.waitForTimeout(600);await page.locator('#viewport').screenshot({path:'screenshots/windows-closeup.png'});
  await page.locator('#automaticMode').click();await page.locator('[data-scenario="night"]').click();await page.locator('#camera-lighting').click();await page.waitForTimeout(600);await page.locator('#viewport').screenshot({path:'screenshots/lighting-closeup.png'});
- await page.selectOption('#languageSelect','en');await page.locator('#bachelor').click();await page.locator('.communication-area').screenshot({path:'screenshots/bachelor-architecture.png'});
+ await page.selectOption('#languageSelect','en');await page.locator('.communication-area').screenshot({path:'screenshots/bachelor-architecture.png'});
  const stats=await page.evaluate(()=>window.livingLab.scene());
  await page.locator('#reset').click();await page.setViewportSize({width:390,height:844});await page.waitForTimeout(600);assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));await page.screenshot({path:'screenshots/mobile.png',fullPage:true});
  assert.deepEqual(errors,[]);await writeFile('tests/presentation-results.json',JSON.stringify({fullscreen:true,threeRowsAcrossFourPanes:true,mobileOverflow:false,browserErrors:errors,renderCalls:stats.calls},null,2));

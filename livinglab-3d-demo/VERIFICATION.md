@@ -1,17 +1,17 @@
-# Verification — 22 November 2026
+# Verification — 23 November 2026
 
 The original HTML and original logo have no Git diff. All changes are contained in `livinglab-3d-demo/`.
 
 ## Executed checks
 
-- Nine Node regression tests pass (including two new blind-deployment geometry tests): verbatim comparison of all six original presets (including environment metadata); repeated automatic/manual entry; independent manual controls; automatic edit guards and input validation; immutable communication snapshots; education/language/reset behavior; bilingual dictionary-key parity.
+- Nine Node regression tests pass (including two new blind-deployment geometry tests): verbatim comparison of all six original presets (including environment metadata); repeated automatic/manual entry; independent manual controls; automatic edit guards and input validation; immutable communication snapshots; language/reset behavior; bilingual dictionary-key parity.
 - Production build succeeds with Vite. JavaScript is approximately 584 kB before compression, including Three.js and OrbitControls; CSS is approximately 16 kB. The complete `dist/` is approximately 1.2 MB including the provided logo and licenses.
 - Eleven Playwright browser groups pass against the local production build. See `tests/browser-results.json` for the executed test names.
 - Actual Three.js diagnostics verify twelve glass panes, selected-row opacity on four bays, separate blind position and slat angle, light colour/intensity/direction, camera changes and animated intermediate values. Tests use UI interactions; the diagnostics are read-only and opt-in via `?inspect`.
 - All six scenarios produce distinct rendered skies and correct device targets. Screenshot evidence includes Morning, Strong Sunshine and Night.
 - The test browser blocks every nonlocal request before the first navigation. The build loads and works with zero external requests, zero failed requests, and zero browser console/page errors. This verifies independence from internet services, while the loopback static server remains available.
 - A simulated WebGL-unavailable browser receives a translated fallback and retains working simulation controls.
-- Original keyboard mappings, Help/Escape, Reset Demo, German/English, School/Bachelor, bounded orbit and all three camera presets are exercised.
+- Original keyboard mappings, Help/Escape, Reset Demo, German/English, Bachelor-only presentation, bounded orbit and all three camera presets are exercised.
 - Layout checks cover 1600×1000, 1280×720 and 390×844. All device controls fit within the 720p desktop viewport; mobile has no horizontal page overflow. Mobile intentionally scrolls vertically.
 - Supplementary presentation checks cover the browser fullscreen API, all three tint rows simultaneously, window and lighting close-ups, and the final mobile camera framing. See `tests/presentation-results.json`.
 
@@ -49,3 +49,13 @@ Partially lowered blinds now deploy with constant slat pitch and gather the rema
 Replaced the three rectangular desks with two groups of four rounded triangular worktops: left beside the electrochromic glass, right beside the blinds. Each square group is rotated 45° around its centre, including its chairs, monitors and seated occupants. Four people are modelled locally. The overview camera is slightly higher to show the individual worktops. All furniture participates in the existing static geometry batching.
 
 The production build succeeds. The eleven browser control checks pass after the furniture replacement; the transition check now waits for a rendered intermediate state instead of a fixed 150 ms delay. Presentation checks and `screenshots/desk-groups.png` cover the final 45° arrangement. The offline archive contains the rebuilt application.
+
+## Bachelor-only interface
+
+Removed the learning-level selector and its state/action. The technical architecture, protocol labels and technical node explanations are always active, including after Reset Demo. Updated the browser checks to verify selector absence, technical node explanations and technical content after reset. Node regression tests, all eleven browser checks and the production build pass.
+
+## Mode visibility and individual system demonstrations
+
+Automatic/Manual now uses a solid selected background and check mark. Each system has an accessible Active/Off switch in both modes. Excluded outputs become clear glass, raised blinds at 0°, or lights at 0%; saved manual settings remain available when reactivated. Selection survives weather and mode changes, and reset restores all systems. Event snapshots include system selection and effective targets; scenario signals omit excluded systems.
+
+Added state coverage for each system in isolation across all six scenarios, manual target retention, ignored edits while excluded, no active systems, reset and event snapshots. Browser coverage exercises each system alone in strong sun and at night, actual rendered targets, selected-mode contrast, disabled controls and restoration. Production build and offline archive updated.

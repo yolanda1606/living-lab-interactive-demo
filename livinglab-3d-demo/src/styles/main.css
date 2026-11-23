@@ -11,3 +11,21 @@
 @media(min-width:901px) and (max-height:850px){.scenario{font-size:.875rem;gap:8px}.scenario .weather-icon{font-size:1.25rem}.controls{padding-bottom:10px}.device-section{margin-top:8px;padding-top:8px}}
 @media(max-width:600px){.scenarios{grid-template-columns:repeat(2,minmax(0,1fr))}.scenario{font-size:.875rem}}
 .communication-diagram button strong,.communication-diagram button small{display:block}
+
+/* Persistent mode selection and independent demo system switches. */
+.segmented.modes button{font-weight:650;color:#36505b;background:transparent}
+.segmented.modes button.active{background:#176c78;color:#fff;box-shadow:0 1px 3px #173b4640}
+.segmented.modes button::before{content:'○';display:inline-block;margin-right:6px}
+.segmented.modes button.active::before{content:'✓'}
+.system-hint{font-size:.75rem;color:#526a72;margin-top:7px}
+.device-title h3{flex:1;min-width:0}
+.system-switch{display:inline-flex;align-items:center;gap:5px;padding:5px 7px;font-size:.75rem;flex-shrink:0;background:#edf0ef;color:#465b62;border-color:#a5b7bc}
+.system-switch[aria-checked=true]{background:#176c78;color:#fff;border-color:#176c78}
+.system-switch i{width:22px;height:12px;border-radius:8px;background:#8a9b9e;position:relative}
+.system-switch i::after{content:'';position:absolute;left:2px;top:2px;width:8px;height:8px;border-radius:50%;background:white}
+.system-switch[aria-checked=true] i{background:#ffffff55}
+.system-switch[aria-checked=true] i::after{left:12px}
+.system-excluded .device-live{font-weight:650;color:#6b5050}
+.device-section.system-excluded{border-left:3px solid #a7b2b5;padding-left:8px}
+.system-switch:hover[aria-checked=true]{background:#105660;color:white}
+@media(min-width:901px) and (max-height:850px){.system-switch{padding:3px 6px}.system-hint{margin-top:4px}.lighting-options{margin-top:5px}}
