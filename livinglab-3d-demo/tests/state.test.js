@@ -65,7 +65,7 @@ test('system isolation affects only selected outputs across weather and mode cha
       assert.equal(d.blindPosition, selected==='blinds' ? preset.blindPosition : 0);
       assert.equal(d.slatAngle, selected==='blinds' ? preset.slatAngle : 0);
       assert.equal(d.lampBrightness, selected==='lighting' ? preset.lampBrightness : 0);
-      assert.deepEqual(store.getState().events[0].paths, ['environment','wago',selected]);
+      assert.deepEqual(store.getState().events[0].paths, ['environment','lisa','wago',selected]);
     }
     const before=devices(store.getState());store.dispatch({type:'mode',value:false});
     assert.deepEqual(devices(store.getState()),before);
@@ -87,4 +87,14 @@ test('excluded systems preserve manual settings, ignore edits, and restore on re
   assert.deepEqual(devices(store.getState()).tints,['low','low','low']);
   assert.equal(devices(store.getState()).blindPosition,0);assert.equal(devices(store.getState()).lampBrightness,0);
   store.dispatch({type:'system',key:'glass',value:'false'});assert.equal(store.getState().systems.glass,false);
+});
+
+
+test('manual and automatic event paths distinguish LiSA supervision from field control', () => {
+  const store = createStore();
+  store.dispatch({type:'mode',value:false});
+  store.dispatch({type:'device',key:'blindPosition',value:42});
+  assert.deepEqual(store.getState().events[0].paths, ['user','lisa','wago','blinds']);
+  store.dispatch({type:'mode',value:true});
+  assert.deepEqual(store.getState().events[0].paths, ['environment','lisa','wago','glass','blinds','lighting']);
 });

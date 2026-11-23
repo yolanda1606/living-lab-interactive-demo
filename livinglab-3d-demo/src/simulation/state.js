@@ -20,20 +20,20 @@ export function createStore() {
     state.events.unshift({ type, paths: type === 'system' ? paths : paths.filter(path => state.systems[path] !== false), systems: clone(state.systems), protocol, scenario: state.scenario, automatic: state.automatic, devices: clone(devices(state)) });
     state.events.splice(8);
   };
-  eventFor('scenario', ['environment', 'wago', 'glass', 'blinds', 'lighting']);
+  eventFor('scenario', ['environment', 'lisa', 'wago', 'glass', 'blinds', 'lighting']);
   return {
     getState: () => clone(state),
     subscribe(fn) { listeners.add(fn); return () => listeners.delete(fn); },
     dispatch(action) {
       const { type, value } = action;
-      if (type === 'scenario' && scenarios[value]) { state.scenario = value; eventFor(type, state.automatic ? ['environment', 'wago', 'glass', 'blinds', 'lighting'] : ['environment']); }
+      if (type === 'scenario' && scenarios[value]) { state.scenario = value; eventFor(type, state.automatic ? ['environment', 'lisa', 'wago', 'glass', 'blinds', 'lighting'] : ['environment']); }
       else if (type === 'mode') {
         if (!value && state.automatic) state.manual = clone(scenarios[state.scenario].devices);
         state.automatic = !!value;
-        eventFor('mode', value ? ['environment', 'wago', 'glass', 'blinds', 'lighting'] : ['environment', 'wago']);
+        eventFor('mode', value ? ['environment', 'lisa', 'wago', 'glass', 'blinds', 'lighting'] : ['user', 'lisa']);
       } else if (type === 'system' && Object.hasOwn(state.systems, action.key) && typeof value === 'boolean') {
         state.systems[action.key] = value;
-        eventFor('system', ['wago', action.key]);
+        eventFor('system', [state.automatic ? 'environment' : 'user', 'lisa', 'wago', action.key]);
       } else if (type === 'device' && !state.automatic) {
         const { key, row } = action;
         const system = key === 'tints' ? 'glass' : key?.startsWith('lamp') ? 'lighting' : 'blinds';
@@ -45,7 +45,7 @@ export function createStore() {
         else if (key === 'lampDirection' && ['direct', 'indirect'].includes(value)) state.manual[key] = value;
         else return;
         const dest = key === 'tints' ? 'glass' : key.startsWith('lamp') ? 'lighting' : 'blinds';
-        if (action.commit !== false) eventFor(key, ['environment', 'wago', dest], { glass: 'BACnet', blinds: 'SMI', lighting: 'ZigBee' }[dest]);
+        if (action.commit !== false) eventFor(key, ['user', 'lisa', 'wago', dest], { glass: 'BACnet', blinds: 'SMI', lighting: 'ZigBee' }[dest]);
       } else if (type === 'language' && ['de', 'en'].includes(value)) state.language = value;
       else if (type === 'camera' && Object.hasOwn(cameraTargets, value)) {
         state.camera = value; state.view = value === 'overview' ? 'office' : ['automation','controller'].includes(value) ? 'automation' : 'inspect';
@@ -67,7 +67,7 @@ export function createStore() {
         state.tourStep = null; state.view = 'office'; state.component = null; state.camera = 'overview';
       }
       else if (type === 'cutaway') state.cutaway = !!value;
-      else if (type === 'reset') { state = initial(); eventFor('scenario', ['environment', 'wago', 'glass', 'blinds', 'lighting']); }
+      else if (type === 'reset') { state = initial(); eventFor('scenario', ['environment', 'lisa', 'wago', 'glass', 'blinds', 'lighting']); }
       else return;
       listeners.forEach(fn => fn(clone(state), action));
     }

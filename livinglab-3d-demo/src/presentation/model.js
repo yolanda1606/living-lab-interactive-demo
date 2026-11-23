@@ -1,6 +1,6 @@
 // Presentation metadata only. Device targets always come from simulation/state.js.
 export const physicalComponents = ['glass', 'blinds', 'lighting', 'sensors'];
-export const architectureNodes = ['sensors', 'wago', 'glass', 'blinds', 'pi', 'gateway', 'lighting', 'mpc'];
+export const architectureNodes = ['user', 'lisa', 'sensors', 'wago', 'glass', 'blinds', 'pi', 'gateway', 'lighting', 'mpc'];
 export const cameraTargets = {
   overview: { position: [6, 5.6, 10.2], target: [0, .95, -.5] },
   windows: { position: [0, 2.6, 5.7], target: [0, 1.95, -3.4] },
@@ -17,10 +17,10 @@ export const tourSteps = [
   { view: 'inspect', camera: 'glass', component: 'glass', key: 'glass' },
   { view: 'inspect', camera: 'blinds', component: 'blinds', key: 'blinds' },
   { view: 'inspect', camera: 'lighting', component: 'lighting', key: 'lighting' },
-  { view: 'automation', camera: 'controller', component: 'wago', key: 'controller' },
+  { view: 'automation', camera: 'controller', component: 'lisa', key: 'controller' },
   { view: 'automation', camera: 'automation', component: null, key: 'architecture' },
   { view: 'office', camera: 'overview', component: null, key: 'return' }
 ];
-export const componentPath = { sensors: 'sensors', wago: 'controller', glass: 'glass', blinds: 'blinds', lighting: 'lighting', pi: 'lighting', gateway: 'lighting', mpc: 'mpc' };
+export const componentPath = { user: 'user', lisa: 'supervisory', sensors: 'sensors', wago: 'controller', glass: 'glass', blinds: 'blinds', lighting: 'lighting', pi: 'lighting', gateway: 'lighting', mpc: 'mpc' };
 
 export const physicalForNode = key => physicalComponents.includes(key) ? key : ['pi', 'gateway'].includes(key) ? 'lighting' : null;

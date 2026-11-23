@@ -106,3 +106,24 @@ html{scroll-padding-top:calc(var(--tour-height,0px) + 12px)}
 .tour-actions small{grid-column:1/-1;font-size:.75rem;line-height:1.4;color:#526975}
 @media(max-width:900px){#guided-tour{display:block;padding:10px 16px}#tour-description{display:none}#guided-tour .tour-actions{margin-top:8px}#tour-count{display:inline;margin-right:10px}}
 @media(max-width:600px){#guided-tour{padding:9px 12px}#guided-tour .tour-actions{grid-template-columns:1fr 1fr}#guided-tour .tour-actions button{font-size:.75rem;padding:8px;min-height:44px}#tour-exit{grid-column:1/-1}#tour-title{font-size:.875rem}.tour-actions small{font-size:.7rem}}
+/* LiSA supervision is distinct from field automation and physical actuators. */
+#viewport[data-perspective=automation]{height:900px;max-height:none}
+.architecture-board{min-width:1000px;min-height:600px}
+.architecture-node{height:14%}
+.architecture-node[data-architecture-node=user],.architecture-node[data-architecture-node=sensors]{background:#f1f4f6;border-color:#98acb7}
+.architecture-node[data-architecture-node=lisa]{background:#e1f2ef;border:2px solid #176c78;height:24%}
+.architecture-node[data-architecture-node=lisa] strong{font-size:16px;color:#145a63}
+.architecture-node[data-architecture-node=mpc]{background:#f0eef7;border-color:#aaa0bd}
+.architecture-node[data-architecture-node=wago],.architecture-node[data-architecture-node=pi],.architecture-node[data-architecture-node=gateway]{background:#eaf1f8;border-color:#8faac0}
+.architecture-node[data-architecture-node=glass],.architecture-node[data-architecture-node=blinds],.architecture-node[data-architecture-node=lighting]{background:#faf4e8;border-color:#b9a477;height:18%}
+.architecture-node.selected-node{outline:2px solid #497e9c;outline-offset:2px}
+.architecture-status{font-size:10px;line-height:1.2;color:#6c542e}
+.historical-link-note{left:24%;top:61%;width:24%}
+#architecture-mode{font-size:.8rem;line-height:1.4;margin:0 0 10px;color:#245f64}
+.integration-note{font-size:.72rem;line-height:1.4;margin:8px 0 0;color:#526975}
+.supervisory-summary{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-bottom:16px}
+.supervisory-summary button{border:2px solid #176c78;background:#e1f2ef}
+@media(max-width:600px){.architecture-board{min-width:1000px}#viewport[data-perspective=automation]{height:950px}}
+
+#viewport[data-perspective=automation] #fallback{display:none}
+.architecture-edge[data-engineering-path=supervisory]>path{stroke-dasharray:5 4}

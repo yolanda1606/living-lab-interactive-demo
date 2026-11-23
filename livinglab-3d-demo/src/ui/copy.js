@@ -197,3 +197,46 @@ Object.assign(copy.en, {
   systemOffState: { glass: 'Clear glass', blinds: 'Raised', lighting: 'Lights off' },
   systemOffHelp: { glass: 'Off: glass stays clear. Active: tint follows the selected mode.', blinds: 'Off: blinds stay raised. Active: blinds follow the selected mode.', lighting: 'Off: lamps stay off. Active: lighting follows the selected mode; daylight may result in 0% brightness.' }
 });
+
+Object.assign(copy.en, {
+  nodeUser: 'User / Operator', nodeLisa: 'LiSA System – User Interface and Automatic Control',
+  supervisoryDetail: 'Manual / Automatic → field controllers → physical devices. Upper-level integration is conceptual; no protocol is confirmed.',
+  nodeMpc: 'Bachmann · MPC', nodeMpcDetail: 'Historical predictive-control platform associated with LiSA; not the entire LiSA system',
+  historical: 'LiSA supports glass, blinds and lighting by design. In the reported physical test, glass and blinds were operated manually through LiSA; the lighting-control issue remained unresolved. All demo signals are simulated.',
+  eventManual: 'User → LiSA → relevant controllers → devices (conceptual manual request)',
+  eventAutomatic: 'Environment / sensors → LiSA automatic logic → controllers → devices (demo presets, not the deployed algorithm)',
+  nodeWagoDetail: 'WAGO 750-831 · field automation below LiSA',
+  autoHint: 'Demo scenario presets illustrate LiSA automatic control; they are not its deployed algorithm.'
+});
+Object.assign(copy.de, {
+  nodeUser: 'Benutzer / Bedienung', nodeLisa: 'LiSA-System – Bedienung und automatische Steuerung',
+  supervisoryDetail: 'Manuell / Automatisch → Feldsteuerungen → physikalische Geräte. Übergeordnete Integration konzeptionell; kein Protokoll bestätigt.',
+  nodeMpc: 'Bachmann · MPC', nodeMpcDetail: 'Historische Plattform für prädiktive Regelung im LiSA-System; nicht das gesamte LiSA-System',
+  historical: 'LiSA unterstützt gemäß Systemdesign Glas, Jalousien und Licht. Im berichteten Praxistest wurden Glas und Jalousien über LiSA manuell bedient; das Problem der Lichtsteuerung blieb ungelöst. Alle Demo-Signale sind simuliert.',
+  eventManual: 'Bedienung → LiSA → zuständige Steuerungen → Geräte (konzeptioneller manueller Zielwert)',
+  eventAutomatic: 'Umgebung / Sensoren → LiSA-Automatik → Steuerungen → Geräte (Demo-Vorgaben, nicht der eingesetzte Algorithmus)',
+  nodeWagoDetail: 'WAGO 750-831 · Feldautomation unter LiSA',
+  autoHint: 'Demo-Szenariovorgaben veranschaulichen die LiSA-Automatik; sie sind nicht deren eingesetzter Algorithmus.'
+});
+Object.assign(copy.en.explanations, {
+  user: 'Users request settings through LiSA. The Android Voting App and AdminApp are separate; direct PLC integration is not confirmed.',
+  lisa: 'LiSA supervises manual and automatic control of glass, blinds and lighting. Its integration with field controllers is conceptual here; no upper-level protocol is asserted.',
+  wago: 'WAGO is the historical field automation controller below LiSA, with BACnet for glass and SMI for blinds. Lighting uses the Raspberry Pi integration.',
+  glass: 'LiSA manual operation of SageGlass was confirmed in the reported test. WAGO → BACnet → SageGlass is the historical field path; demo tints are illustrative.',
+  blinds: 'LiSA manual operation of the blinds was confirmed in the reported test. WAGO → SMI → Raffstore is the historical field path.',
+  lighting: 'LiSA supports lighting by design, but the reported physical test left a control issue unresolved. The historical Raspberry Pi / CODESYS → REST/HTTP → deCONZ / Phoscon → ZigBee path is simulated here.',
+  mpc: 'Bachmann is the historical predictive-control platform associated with LiSA, not the complete LiSA system. Its historical Modbus TCP relationship is shown; no predictive algorithm runs here.'
+});
+Object.assign(copy.de.explanations, {
+  user: 'Benutzer geben Zielwerte über LiSA vor. Android Voting App und AdminApp sind getrennt zu betrachten; direkter SPS-Zugriff ist nicht bestätigt.',
+  lisa: 'LiSA übernimmt die übergeordnete manuelle und automatische Steuerung von Glas, Jalousien und Licht. Die Integration mit Feldsteuerungen ist hier konzeptionell; ein übergeordnetes Protokoll wird nicht behauptet.',
+  wago: 'WAGO ist die historische Feldsteuerung unter LiSA: BACnet für Glas, SMI für Jalousien und Raspberry-Pi-Integration für Licht.',
+  glass: 'Die manuelle SageGlass-Bedienung über LiSA wurde im berichteten Test bestätigt. WAGO → BACnet → SageGlass ist der historische Feldpfad; die Demo-Tönung ist illustrativ.',
+  blinds: 'Die manuelle Jalousienbedienung über LiSA wurde im berichteten Test bestätigt. WAGO → SMI → Raffstore ist der historische Feldpfad.',
+  lighting: 'LiSA unterstützt Licht gemäß Systemdesign; im berichteten Praxistest blieb ein Steuerungsproblem ungelöst. Der historische Pfad Raspberry Pi / CODESYS → REST/HTTP → deCONZ / Phoscon → ZigBee wird hier simuliert.',
+  mpc: 'Bachmann ist die historische Plattform für prädiktive Regelung im LiSA-System, nicht das gesamte LiSA-System. Die historische Modbus-TCP-Beziehung wird gezeigt; hier läuft kein prädiktiver Algorithmus.'
+});
+for (const language of ['de', 'en']) {
+  copy[language].actionExplanations.manual = copy[language].eventManual;
+  copy[language].actionExplanations.automatic = copy[language].eventAutomatic;
+}

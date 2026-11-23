@@ -56,7 +56,7 @@ try {
    await page.locator('#manualMode').click();
    await page.locator('#view-automation').click();await stable();
    const before=physical(await state());
-   for(const key of ['wago','pi','gateway','mpc']) {
+   for(const key of ['user','lisa','wago','pi','gateway','mpc']) {
      await page.locator(`[data-architecture-node="${key}"]`).click();await stable();
      assert.equal((await state()).view,'automation');
      await expect(page.locator('.inspection-status')).toContainText('not verified');
@@ -68,11 +68,25 @@ try {
    await page.locator('[data-row="1"][data-tint="high"]').click();
    await expect(page.locator('[data-engineering-path="glass"]')).toHaveClass(/signal-path/);
    assert.equal(await page.locator('[data-engineering-path="blinds"].signal-path').count(),0);
-   await expect(page.locator('#engineering-signal')).toContainText('BACnet');
+   await expect(page.locator('#engineering-signal')).toContainText('User / Operator → LiSA → WAGO → BACnet');
+   await expect(page.locator('[data-engineering-path="user"]')).toHaveClass(/signal-path/);
+   await expect(page.locator('[data-engineering-path="supervisory"]')).toHaveClass(/signal-path/);
+   assert.equal(await page.locator('[data-engineering-path="sensors"].signal-path').count(),0);
    await page.locator('[data-angle="45"]').click();await expect(page.locator('#engineering-signal')).toContainText('SMI');
    await page.locator('[data-temperature="warm"]').click();await expect(page.locator('#engineering-signal')).toContainText('REST/HTTP');
    await expect(page.locator('#engineering-signal')).toContainText('ZigBee');
-   await page.locator('[data-architecture-node="wago"]').click();await stable();
+   await expect(page.locator('[data-architecture-node="lisa"]')).toContainText('User Interface and Automatic Control');
+   await expect(page.locator('[data-architecture-node="glass"]')).toContainText('Manually tested');
+   await expect(page.locator('[data-architecture-node="blinds"]')).toContainText('Manually tested');
+   await expect(page.locator('[data-architecture-node="lighting"]')).toContainText('unresolved');
+   await page.locator('#automaticMode').click();
+   await expect(page.locator('[data-engineering-path="sensors"]')).toHaveClass(/signal-path/);
+   await expect(page.locator('#architecture-mode')).toContainText('not the deployed LiSA algorithm');
+   await expect(page.locator('#engineering-signal')).toContainText('Environment / sensors → LiSA');
+   await page.locator('#manualMode').click();
+   await page.locator('[data-architecture-node="mpc"]').click();await stable();
+   await expect(page.locator('#inspection-principle')).toContainText('not the complete LiSA system');
+   await page.locator('[data-architecture-node="lisa"]').click();await stable();
    await page.locator('#viewport').screenshot({path:'screenshots/tour/automation-architecture.png'});
    await page.screenshot({path:'screenshots/tour/automation-interface.png',fullPage:true});
  });
@@ -125,6 +139,8 @@ try {
    await page.selectOption('#languageSelect','de');await page.locator('#view-automation').click();await stable();
    await expect(page.locator('#view-automation')).toHaveText('Automation aufdecken');
    await expect(page.locator('#automation-view')).toContainText('keine Live-Gebäudedaten');
+   await expect(page.locator('[data-architecture-node="lisa"]')).toContainText('Bedienung und automatische Steuerung');
+   await expect(page.locator('[data-architecture-node="lighting"]')).toContainText('ungelöst');
    for(const viewport of [{width:1280,height:720},{width:390,height:844}]) {
      await page.setViewportSize(viewport);await page.waitForTimeout(300);
      assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));

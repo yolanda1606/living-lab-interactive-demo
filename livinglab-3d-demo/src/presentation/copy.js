@@ -118,3 +118,85 @@ export const engineeringCopy = {
     }
   }
 };
+
+Object.assign(engineeringCopy.en, {
+  "architectureTitle": "User → LiSA System → Automation controllers → Physical devices",
+  "environmentLine": "Inputs",
+  "conceptual": "Conceptual",
+  "fieldControl": "Field controller",
+  "manualFlow": "Manual: User → LiSA → controllers → devices. The user requests the desired settings.",
+  "automaticFlow": "Automatic: Environment / sensors → LiSA control logic → controllers → devices. Scenario presets illustrate decisions; they are not the deployed LiSA algorithm.",
+  "manualTested": "Manually tested through LiSA",
+  "lightingIssue": "Supported by design · control issue unresolved in the reported test",
+  "status": "Historical integration · current operation not verified",
+  "mpcAssociation": "Predictive-control role within LiSA",
+  "hierarchy": "Interaction · Supervisory control · Field controllers · Actuators",
+  "userLabel": "User / Operator",
+  "lisaLabel": "LiSA System – User Interface and Automatic Control",
+  "modes": "Manual / Automatic",
+  "integrationNote": "LiSA → controllers: conceptual integration; protocol not confirmed. Bachmann is the historical MPC platform, not the complete LiSA system."
+});
+Object.assign(engineeringCopy.en.components, {
+  "user": {
+    "title": "User / Operator",
+    "short": "User / Operator",
+    "principle": "Manual: User → LiSA → controllers → devices. The user requests the desired settings.",
+    "engineering": "The LiSA Android Voting App and AdminApp are separate interfaces; their integration is not confirmed as direct PLC control."
+  },
+  "lisa": {
+    "title": "LiSA System – User Interface and Automatic Control",
+    "short": "LiSA System – User Interface and Automatic Control",
+    "principle": "LiSA is the overarching operating and control system for SageGlass, Venetian blinds and artificial lighting, with manual and automatic operation.",
+    "engineering": "LiSA → controllers: conceptual integration; protocol not confirmed. Bachmann is the historical MPC platform, not the complete LiSA system. Automatic: Environment / sensors → LiSA control logic → controllers → devices. Scenario presets illustrate decisions; they are not the deployed LiSA algorithm."
+  },
+  "mpc": {
+    "title": "Bachmann · LiSA MPC",
+    "short": "Bachmann · MPC",
+    "principle": "Historically documented platform for predictive control associated with LiSA. This component is not the complete LiSA system.",
+    "engineering": "The historical Modbus TCP relationship with WAGO is retained. Predictive control is not executed in this demo; current integration is unverified."
+  }
+});
+engineeringCopy.en.components.wago.principle = "WAGO is a field automation controller below the LiSA supervisory level. It connects the conceptual device requests to the historically documented protocol branches.";
+engineeringCopy.en.components.architecture.principle = engineeringCopy.en.architectureTitle;
+engineeringCopy.en.tour.controller = ["LiSA and field controllers", "Follow manual or automatic requests from LiSA to WAGO. Bachmann MPC is a separate historical predictive-control component."];
+
+Object.assign(engineeringCopy.de, {
+  "architectureTitle": "Bedienung → LiSA-System → Automationssteuerungen → Physikalische Geräte",
+  "environmentLine": "Eingänge",
+  "conceptual": "Konzeptionell",
+  "fieldControl": "Feldsteuerung",
+  "manualFlow": "Manuell: Bedienung → LiSA → Steuerungen → Geräte. Der Benutzer gibt die gewünschten Zielwerte vor.",
+  "automaticFlow": "Automatisch: Umgebung / Sensoren → LiSA-Steuerungslogik → Steuerungen → Geräte. Szenariovorgaben veranschaulichen Entscheidungen; sie sind nicht der eingesetzte LiSA-Algorithmus.",
+  "manualTested": "Über LiSA manuell getestet",
+  "lightingIssue": "Im Systemdesign vorgesehen · Steuerungsproblem im berichteten Test ungelöst",
+  "status": "Historische Integration · heutiger Betrieb nicht verifiziert",
+  "mpcAssociation": "Prädiktive Regelung im LiSA-System",
+  "hierarchy": "Bedienung · Übergeordnete Steuerung · Feldsteuerungen · Aktoren",
+  "userLabel": "Benutzer / Bedienung",
+  "lisaLabel": "LiSA-System – Bedienung und automatische Steuerung",
+  "modes": "Manuell / Automatisch",
+  "integrationNote": "LiSA → Steuerungen: konzeptionelle Integration; Protokoll nicht bestätigt. Bachmann ist die historische MPC-Plattform, nicht das gesamte LiSA-System."
+});
+Object.assign(engineeringCopy.de.components, {
+  "user": {
+    "title": "Benutzer / Bedienung",
+    "short": "Benutzer / Bedienung",
+    "principle": "Manuell: Bedienung → LiSA → Steuerungen → Geräte. Der Benutzer gibt die gewünschten Zielwerte vor.",
+    "engineering": "LiSA Android Voting App und AdminApp sind separate Oberflächen; ihre Integration ist nicht als direkter SPS-Zugriff bestätigt."
+  },
+  "lisa": {
+    "title": "LiSA-System – Bedienung und automatische Steuerung",
+    "short": "LiSA-System – Bedienung und automatische Steuerung",
+    "principle": "LiSA ist das übergeordnete Bedien- und Steuerungssystem für SageGlass, Raffstore und künstliche Beleuchtung mit manuellem und automatischem Betrieb.",
+    "engineering": "LiSA → Steuerungen: konzeptionelle Integration; Protokoll nicht bestätigt. Bachmann ist die historische MPC-Plattform, nicht das gesamte LiSA-System. Automatisch: Umgebung / Sensoren → LiSA-Steuerungslogik → Steuerungen → Geräte. Szenariovorgaben veranschaulichen Entscheidungen; sie sind nicht der eingesetzte LiSA-Algorithmus."
+  },
+  "mpc": {
+    "title": "Bachmann · LiSA MPC",
+    "short": "Bachmann · MPC",
+    "principle": "Historisch dokumentierte Plattform für prädiktive Regelung im LiSA-System. Diese Komponente ist nicht das gesamte LiSA-System.",
+    "engineering": "Die historische Modbus-TCP-Beziehung zu WAGO bleibt dargestellt. Diese Demo führt keine prädiktive Regelung aus; die heutige Integration ist nicht verifiziert."
+  }
+});
+engineeringCopy.de.components.wago.principle = "WAGO ist eine Automationssteuerung unterhalb der übergeordneten LiSA-Ebene. Sie verbindet die konzeptionellen Gerätezielwerte mit den historisch dokumentierten Protokollzweigen.";
+engineeringCopy.de.components.architecture.principle = engineeringCopy.de.architectureTitle;
+engineeringCopy.de.tour.controller = ["LiSA und Feldsteuerungen", "Verfolge manuelle oder automatische Zielwerte von LiSA zu WAGO. Bachmann MPC ist eine separate historische Komponente für prädiktive Regelung."];
