@@ -34,8 +34,8 @@ export function createEngineeringInterface(store) {
     <div class="inspection-actions"><button id="inspection-physical" data-tour-text="physical"></button><button id="inspection-path" data-tour-text="path"></button><button id="inspection-controls" data-tour-text="controls"></button></div><p id="inspection-hint"></p>`;
   toolbar.after(panel);
   const tour = document.createElement('section'); tour.id = 'guided-tour'; tour.hidden = true;
-  tour.innerHTML = `<div class="tour-step-copy" aria-live="polite"><span id="tour-count"></span><strong id="tour-title"></strong><p id="tour-description"></p></div><div class="tour-actions"><button id="tour-previous" data-tour-text="previous"></button><button id="tour-next" data-tour-text="next"></button><button id="tour-exit" data-tour-text="exit"></button></div>`;
-  host.before(tour);
+  tour.innerHTML = `<div class="tour-step-copy" aria-live="polite"><span id="tour-count"></span><strong id="tour-title"></strong><p id="tour-description"></p></div><div class="tour-actions"><button id="tour-previous" data-tour-text="previous"></button><button id="tour-next" data-tour-text="next"></button><button id="tour-exit" data-tour-text="exit"></button><small data-tour-text="navigationHelp"></small></div>`;
+  document.querySelector('main').before(tour);
   const architecture = document.createElement('section'); architecture.id = 'automation-view'; architecture.setAttribute('aria-hidden', 'true'); architecture.inert = true;
   architecture.innerHTML = `<header><strong data-tour-text="architectureTitle"></strong><span data-tour-text="architectureStatus"></span></header>
     <div class="architecture-scroll" tabindex="0"><div class="architecture-board">
@@ -55,13 +55,15 @@ export function createEngineeringInterface(store) {
   document.getElementById('view-automation').onclick = () => dispatch('reveal');
   document.getElementById('inspection-physical').onclick = () => { dispatch('inspect', physicalForNode(store.getState().component)); focusScene(); };
   document.getElementById('inspection-path').onclick = () => { dispatch('reveal'); focusScene(); };
-  document.getElementById('tour-start').onclick = () => { dispatch('tour-start'); focusScene(); };
-  document.getElementById('tour-previous').onclick = () => dispatch('tour-step', store.getState().tourStep - 1);
+  document.getElementById('tour-start').onclick = () => { if (store.getState().tourStep === null) dispatch('tour-start'); focusScene(); };
+  document.getElementById('tour-previous').onclick = () => { dispatch('tour-step', store.getState().tourStep - 1); focusScene(); };
   document.getElementById('tour-next').onclick = () => {
     const step = store.getState().tourStep;
     dispatch(step === tourSteps.length - 1 ? 'tour-exit' : 'tour-step', step + 1);
+    focusScene();
+    if (step === tourSteps.length - 1) document.getElementById('tour-start').focus({ preventScroll: true });
   };
-  document.getElementById('tour-exit').onclick = () => dispatch('tour-exit');
+  document.getElementById('tour-exit').onclick = () => { dispatch('tour-exit'); focusScene(); document.getElementById('tour-start').focus({ preventScroll: true }); };
   architecture.querySelectorAll('[data-architecture-node]').forEach(b => b.onclick = () => dispatch('architecture-node', b.dataset.architectureNode));
   document.getElementById('inspection-controls').onclick = () => {
     const state = store.getState(), key = state.component;
@@ -142,15 +144,19 @@ export function createEngineeringInterface(store) {
     }
     document.getElementById('engineering-signal').textContent = signalPaths.length ? signalPaths.map(id => `${signalText(id, t)}${values[id] ? ` · ${values[id]}` : ''}`).join(' | ') : signalType ? (state.automatic ? base.automatic : base.manualWeather) : t.noSignal;
     tour.hidden = state.tourStep === null;
+    document.getElementById('tour-start').textContent = tour.hidden ? t.start : t.resume;
+    document.documentElement.style.setProperty('--tour-height', tour.hidden ? '0px' : `${tour.offsetHeight}px`);
     if (!tour.hidden) {
       const index = state.tourStep, step = tourSteps[index], [title, description] = t.tour[step.key];
       document.getElementById('tour-count').textContent = `${t.step} ${index + 1} ${t.of} ${tourSteps.length}`;
       document.getElementById('tour-title').textContent = title;
       document.getElementById('tour-description').textContent = description;
       document.getElementById('tour-previous').disabled = index === 0;
-      document.getElementById('tour-next').textContent = index === tourSteps.length - 1 ? t.finish : t.next;
+      document.getElementById('tour-previous').textContent = index === 0 ? `← ${t.previous}` : `← ${t.previous}: ${t.tour[tourSteps[index - 1].key][0]}`;
+      document.getElementById('tour-next').textContent = index === tourSteps.length - 1 ? t.finish : `${t.next}: ${t.tour[tourSteps[index + 1].key][0]} →`;
     }
   }
+  new ResizeObserver(() => document.documentElement.style.setProperty('--tour-height', tour.hidden ? '0px' : `${tour.offsetHeight}px`)).observe(tour);
   render(store.getState());
   store.subscribe(render);
   window.addEventListener('pagehide', () => clearTimeout(signalTimer), { once: true });

@@ -89,3 +89,20 @@
 #viewport[data-perspective=automation] .scene-heading,#viewport[data-perspective=automation] .facade-legend{visibility:hidden}
 @media(max-width:1100px){.tour-actions{max-width:170px}#guided-tour{gap:10px}.engineering-toolbar{gap:5px}.engineering-toolbar button,.engineering-toolbar select{font-size:.75rem}#tour-start{margin-left:0}}
 @media(max-width:600px){.engineering-toolbar{display:grid;grid-template-columns:1fr 1fr}.engineering-toolbar button,.engineering-toolbar select{width:100%;height:100%;min-height:38px}.engineering-toolbar select{max-width:none}.inspection-heading{align-items:start}.inspection-heading button{max-width:110px}.inspection-details{grid-template-columns:1fr}#engineering-info{padding:14px}.inspection-heading h2{font-size:1rem}#guided-tour{display:block}.tour-actions{max-width:none;margin-top:9px}#guided-tour[hidden]{display:none}#automation-view{padding:10px}#automation-view>header strong{font-size:.875rem}.architecture-board{min-width:780px}.architecture-signal{max-height:62px}}
+
+/* Keep guided navigation visible even when exploring controls below the room. */
+html{scroll-padding-top:calc(var(--tour-height,0px) + 12px)}
+#tour-start{background:#176c78;border-color:#176c78;color:#fff;font-weight:650}
+#tour-start:hover{background:#125763;color:#fff}
+#guided-tour{position:sticky;top:0;z-index:30;margin:0;padding:14px 28px;border-radius:0;border-width:0 0 2px;border-color:#176c78;background:#f3faf9;box-shadow:0 4px 14px #213c4626;gap:24px}
+#tour-count{color:#176c78;font-weight:750;font-size:.8rem}
+#tour-title{font-size:1.05rem}
+#tour-description{max-width:650px}
+#guided-tour .tour-actions{display:grid;grid-template-columns:1fr 1fr auto;max-width:none;flex:1.35;gap:8px;align-items:stretch}
+#guided-tour .tour-actions button{font-size:.875rem;padding:10px 12px;min-height:48px;font-weight:600;text-align:left}
+#tour-next{background:#176c78;border-color:#176c78;color:#fff}
+#tour-next:hover{background:#125763;color:#fff}
+#tour-previous:disabled{opacity:.55}
+.tour-actions small{grid-column:1/-1;font-size:.75rem;line-height:1.4;color:#526975}
+@media(max-width:900px){#guided-tour{display:block;padding:10px 16px}#tour-description{display:none}#guided-tour .tour-actions{margin-top:8px}#tour-count{display:inline;margin-right:10px}}
+@media(max-width:600px){#guided-tour{padding:9px 12px}#guided-tour .tour-actions{grid-template-columns:1fr 1fr}#guided-tour .tour-actions button{font-size:.75rem;padding:8px;min-height:44px}#tour-exit{grid-column:1/-1}#tour-title{font-size:.875rem}.tour-actions small{font-size:.7rem}}

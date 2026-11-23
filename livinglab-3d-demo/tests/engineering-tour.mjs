@@ -80,10 +80,16 @@ try {
    let before=physical(await state());
    await page.locator('#tour-start').click();await stable();
    await expect(page.locator('#tour-previous')).toBeDisabled();
+   await expect(page.locator('#tour-next')).toHaveText('Next: Environmental inputs →');
+   await expect(page.locator('#tour-exit')).toHaveText('Exit to office');
+   await page.evaluate(()=>scrollTo(0,document.body.scrollHeight));
+   assert.equal(Math.round((await page.locator('#guided-tour').boundingBox()).y),0);
    for(let i=0;i<tourSteps.length;i++) {
      const s=await state();assert.equal(s.tourStep,i);assert.equal(s.view,tourSteps[i].view);assert.equal(s.component,tourSteps[i].component);
      assert.deepEqual(physical(s),before);
      if(i===2) {
+       await page.locator('#tour-start').click();await stable();
+       assert.equal((await state()).tourStep,2,'Returning to the tour must not restart it');
        await page.locator('#tour-previous').click();await stable();assert.equal((await state()).tourStep,1);
        await page.locator('#tour-next').click();await stable();assert.equal((await state()).tourStep,2);
      }
@@ -124,6 +130,17 @@ try {
      assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));
      await page.locator('#viewport').screenshot({path:`screenshots/tour/architecture-${viewport.width}.png`});
    }
+   await page.locator('#tour-start').click();await stable();
+   await expect(page.locator('#tour-next')).toContainText('Umgebungseingänge');
+   await page.evaluate(()=>scrollTo(0,document.body.scrollHeight));
+   const dock=await page.locator('#guided-tour').boundingBox();
+   assert.equal(Math.round(dock.y),0);assert.ok(dock.width<=390);
+   for(const id of ['tour-previous','tour-next','tour-exit']) {
+     const box=await page.locator('#'+id).boundingBox();
+     assert.ok(box.y>=0&&box.y+box.height<=844&&box.x>=0&&box.x+box.width<=390);
+   }
+   await page.screenshot({path:'screenshots/tour/navigation-mobile.png'});
+   await page.locator('#tour-exit').click();await stable();
    assert.deepEqual(external,[]);assert.deepEqual(errors,[]);
  });
  await check('Architecture remains available with WebGL unavailable',async()=>{

@@ -1,7 +1,8 @@
 export const engineeringCopy = {
   en: {
     explore: 'Explore the Office', inspect: 'Inspect a Component', reveal: 'Reveal the Automation', start: 'Start Guided Tour',
-    previous: 'Previous', next: 'Next', exit: 'Exit tour', finish: 'Finish tour', resetView: 'Reset View',
+    resume: 'Back to guided tour', navigationHelp: 'Move at your own pace with Previous and Next. Exit returns to the office and keeps your settings.',
+    previous: 'Previous', next: 'Next', exit: 'Exit to office', finish: 'Finish tour', resetView: 'Reset View',
     principle: 'Principle', engineering: 'Engineering', info: 'Component information', controls: 'Go to component controls',
     physical: 'Inspect in the room', path: 'Follow the automation path', step: 'Step', of: 'of',
     architectureTitle: 'From environmental inputs to physical response',
@@ -59,7 +60,8 @@ export const engineeringCopy = {
   },
   de: {
     explore: 'Raum erkunden', inspect: 'Komponente untersuchen', reveal: 'Automation aufdecken', start: 'Führung starten',
-    previous: 'Zurück', next: 'Weiter', exit: 'Führung beenden', finish: 'Führung abschließen', resetView: 'Ansicht zurücksetzen',
+    resume: 'Zur laufenden Führung', navigationHelp: 'Mit Zurück und Weiter bestimmen Sie das Tempo. Verlassen führt zum Raum zurück; Ihre Einstellungen bleiben erhalten.',
+    previous: 'Zurück', next: 'Weiter', exit: 'Führung verlassen → Raum', finish: 'Führung abschließen', resetView: 'Ansicht zurücksetzen',
     principle: 'Prinzip', engineering: 'Technische Integration', info: 'Komponenteninformationen', controls: 'Zu den Komponentenreglern',
     physical: 'Im Raum untersuchen', path: 'Automationspfad verfolgen', step: 'Schritt', of: 'von',
     architectureTitle: 'Von Umgebungseingängen zur physikalischen Reaktion',

@@ -67,7 +67,7 @@ Shortcuts do not hijack text, range or select input. Reset Demo restores startup
 
 ## Interactive engineering tour
 
-Use **Start Guided Tour** in the header for an eight-step, presenter-controlled route: office → environmental inputs → electrochromic glazing → blinds → lighting → central controller → complete architecture → office. **Previous**, **Next** and **Exit tour** are explicit controls; the tour never advances automatically. You can pause to orbit, change the weather or demonstrate a device at any step. Navigating, entering or exiting the tour preserves device settings, system selections and the event history. Reset Demo retains its original full-reset meaning.
+Use **Start Guided Tour** in the header for an eight-step, presenter-controlled route: office → environmental inputs → electrochromic glazing → blinds → lighting → central controller → complete architecture → office. **Previous** and **Next** show the destination step in a navigation bar that stays visible at the top while scrolling. **Exit to office** ends the tour and preserves your settings. The header’s **Back to guided tour** button returns to the current step without restarting; the tour never advances automatically. You can pause to orbit, change the weather or demonstrate a device at any step. Navigating, entering or exiting the tour preserves device settings, system selections and the event history. Reset Demo retains its original full-reset meaning.
 
 The presentation toolbar below the room connects three perspectives:
 
