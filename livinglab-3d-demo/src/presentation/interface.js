@@ -42,7 +42,7 @@ export function createEngineeringInterface(store) {
   document.querySelector('main').before(tour);
   const architecture = document.createElement('section'); architecture.id = 'automation-view'; architecture.setAttribute('aria-hidden', 'true'); architecture.inert = true;
   architecture.innerHTML = `<header><strong data-tour-text="architectureTitle"></strong><span data-tour-text="architectureStatus"></span><span data-tour-text="hierarchy"></span></header>
-    <p id="architecture-mode" role="status"></p><div class="architecture-scroll" tabindex="0"><div class="architecture-board">
+    <div class="architecture-view-tools"><button id="architecture-fit" aria-pressed="true"></button><button id="architecture-expand" aria-expanded="false"></button><span data-tour-text="diagramHint"></span></div><p id="architecture-mode" role="status"></p><div class="architecture-scroll" tabindex="0"><div class="architecture-board">
       <svg viewBox="0 0 1000 600" preserveAspectRatio="none" aria-hidden="true"><defs><marker id="engineering-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10Z" fill="#6a8d9e"/></marker></defs>
       ${edges.map(([key, d, x, y, label]) => `<g data-engineering-path="${key}" class="architecture-edge ${key === 'mpc' ? 'historical-edge' : ''}"><path d="${d}" ${key === 'mpc' ? '' : 'marker-end="url(#engineering-arrow)"'}/><text x="${x}" y="${y}" text-anchor="middle" ${label === 'inputs' ? 'data-input-label' : label === 'conceptual' ? 'data-conceptual-label' : ''}>${['inputs','conceptual'].includes(label) ? '' : label}</text></g>`).join('')}</svg>
       ${nodeLayout.map(([key, x, y, width, detail]) => `<button class="architecture-node" data-architecture-node="${key}" style="left:${x}%;top:${y}%;width:${width}%"><strong></strong><small>${detail}</small><span class="architecture-live"></span><span class="architecture-status"></span></button>`).join('')}
@@ -51,6 +51,40 @@ export function createEngineeringInterface(store) {
     <div class="architecture-signal" role="status"><span data-tour-text="lastAction"></span><strong id="engineering-signal"></strong></div>
     <p class="integration-note" data-tour-text="integrationNote"></p><footer><span data-tour-text="selectionLegend"></span><span data-tour-text="signalLegend"></span></footer>`;
   host.append(architecture);
+  const diagramFrame = architecture.querySelector('.architecture-scroll');
+  const diagramBoard = architecture.querySelector('.architecture-board');
+  let fitDiagram = true, expandedDiagram = false;
+  function sizeDiagram() {
+    const width = diagramFrame.clientWidth, height = diagramFrame.clientHeight;
+    const scale = fitDiagram ? Math.min(width / 1000, height / 600, 1.5) : 1;
+    diagramFrame.classList.toggle('diagram-fit', fitDiagram);
+    diagramBoard.style.transform = `scale(${scale})`;
+    diagramBoard.style.left = fitDiagram ? `${Math.max(0, (width - 1000 * scale) / 2)}px` : '0px';
+    diagramBoard.style.top = fitDiagram ? `${Math.max(0, (height - 600 * scale) / 2)}px` : '0px';
+  }
+  function updateDiagramTools() {
+    const t = engineeringCopy[store.getState().language];
+    const fit = document.getElementById('architecture-fit'), expand = document.getElementById('architecture-expand');
+    fit.textContent = fitDiagram ? t.diagramDetails : t.diagramFit;
+    fit.setAttribute('aria-pressed', String(fitDiagram));
+    expand.textContent = expandedDiagram ? t.diagramRestore : t.diagramExpand;
+    expand.setAttribute('aria-expanded', String(expandedDiagram));
+    architecture.classList.toggle('is-expanded', expandedDiagram);
+    sizeDiagram();
+  }
+  document.getElementById('architecture-fit').onclick = () => {
+    fitDiagram = !fitDiagram; diagramFrame.scrollTo(0, 0); updateDiagramTools();
+  };
+  document.getElementById('architecture-expand').onclick = () => {
+    expandedDiagram = !expandedDiagram; updateDiagramTools();
+  };
+  document.addEventListener('keydown', event => {
+    if (event.key === 'Escape' && expandedDiagram) {
+      expandedDiagram = false; updateDiagramTools();
+      document.getElementById('architecture-expand').focus({ preventScroll: true });
+    }
+  });
+  new ResizeObserver(sizeDiagram).observe(diagramFrame);
   const clickHint = document.createElement('p'); clickHint.className = 'component-pick-hint'; clickHint.dataset.tourText = 'sceneHint'; toolbar.after(clickHint);
   function focusScene() { host.scrollIntoView({ behavior: reduced.matches ? 'instant' : 'smooth', block: 'center' }); }
   document.getElementById('view-office').onclick = () => dispatch('camera', 'overview');
@@ -96,6 +130,8 @@ export function createEngineeringInterface(store) {
     const showingArchitecture = state.view === 'automation';
     architecture.classList.toggle('is-visible', showingArchitecture);
     architecture.setAttribute('aria-hidden', String(!showingArchitecture)); architecture.inert = !showingArchitecture;
+    if (!showingArchitecture) expandedDiagram = false;
+    updateDiagramTools();
     host.dataset.perspective = state.view; host.dataset.touring = String(state.tourStep !== null);
     // Physical controls remain in their existing place and use the same store.
     document.querySelectorAll('[data-system]').forEach(b => b.closest('.device-section').classList.toggle('inspected-system', b.dataset.system === key));

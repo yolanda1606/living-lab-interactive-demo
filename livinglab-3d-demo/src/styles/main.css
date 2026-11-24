@@ -127,3 +127,17 @@ html{scroll-padding-top:calc(var(--tour-height,0px) + 12px)}
 
 #viewport[data-perspective=automation] #fallback{display:none}
 .architecture-edge[data-engineering-path=supervisory]>path{stroke-dasharray:5 4}
+
+/* Fit the complete topology, including at browser zoom and narrow panel widths. */
+.architecture-scroll{position:relative}
+.architecture-board{width:1000px;height:600px;min-width:1000px;min-height:600px;transform-origin:top left}
+.architecture-scroll.diagram-fit{overflow:hidden}
+.diagram-fit .architecture-board{position:absolute}
+.architecture-view-tools{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:10px}
+.architecture-view-tools button{font-size:.8rem}
+.architecture-view-tools span{font-size:.72rem;color:#526975;flex:1;min-width:160px}
+#automation-view.is-expanded{position:fixed;inset:12px;z-index:60;transform:none;border:1px solid #9bb3bc;border-radius:10px;background:#f7fafb;box-shadow:0 0 0 20px #213c4680;padding:16px}
+#automation-view.is-expanded .architecture-scroll{min-height:100px}
+@media(max-height:600px){#automation-view.is-expanded{inset:4px;padding:8px}#automation-view.is-expanded>header span,#automation-view.is-expanded .integration-note,#automation-view.is-expanded .architecture-view-tools span{display:none}}
+@media(max-width:900px){.workspace{grid-template-columns:minmax(0,1fr)}}
+@media(max-width:780px){.controls{grid-template-columns:1fr}.camera-bar{flex-wrap:wrap}.camera-presets{flex-basis:100%}}

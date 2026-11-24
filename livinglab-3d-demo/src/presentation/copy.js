@@ -200,3 +200,14 @@ Object.assign(engineeringCopy.de.components, {
 engineeringCopy.de.components.wago.principle = "WAGO ist eine Automationssteuerung unterhalb der übergeordneten LiSA-Ebene. Sie verbindet die konzeptionellen Gerätezielwerte mit den historisch dokumentierten Protokollzweigen.";
 engineeringCopy.de.components.architecture.principle = engineeringCopy.de.architectureTitle;
 engineeringCopy.de.tour.controller = ["LiSA und Feldsteuerungen", "Verfolge manuelle oder automatische Zielwerte von LiSA zu WAGO. Bachmann MPC ist eine separate historische Komponente für prädiktive Regelung."];
+
+Object.assign(engineeringCopy.en, {
+  diagramFit: 'Fit complete diagram', diagramDetails: 'Read details · scroll',
+  diagramExpand: 'Enlarge diagram', diagramRestore: 'Restore panel · Esc',
+  diagramHint: 'The whole system fits by default. Enlarge for reading, or scroll in detail view.'
+});
+Object.assign(engineeringCopy.de, {
+  diagramFit: 'Gesamtes Diagramm einpassen', diagramDetails: 'Details lesen · scrollen',
+  diagramExpand: 'Diagramm vergrößern', diagramRestore: 'Zurück zum Panel · Esc',
+  diagramHint: 'Standardmäßig ist das gesamte System sichtbar. Zum Lesen vergrößern oder in der Detailansicht scrollen.'
+});

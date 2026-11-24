@@ -164,3 +164,5 @@ See `VERIFICATION.md`, `tests/browser-results.json` and `tests/engineering-tour-
 The requested tour screenshots are in `screenshots/tour/`: `office-overview.png`, `glass-inspection.png`, `blinds-inspection.png`, `lighting-inspection.png`, and `automation-architecture.png`. Additional captures cover the schematic sensor marker and compact architecture layouts.
 
 Tour screenshot gallery: [Office overview](screenshots/tour/office-overview.png) · [Glass inspection](screenshots/tour/glass-inspection.png) · [Blinds inspection](screenshots/tour/blinds-inspection.png) · [Lighting inspection](screenshots/tour/lighting-inspection.png) · [Automation architecture](screenshots/tour/automation-architecture.png).
+
+The automation diagram fits its panel automatically as the window changes size. Use **Enlarge diagram** for a screen-sized view (Escape restores the panel), or **Read details · scroll** for full-size labels. **Fit complete diagram** restores the overview. These controls do not change the simulation.
